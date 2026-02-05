@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -6,6 +7,8 @@ function Chat({ role = 'patient', userId, userEmail }) {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [sessionId, setSessionId] = useState(null)
+    const [suggestedActions, setSuggestedActions] = useState([])
     const messagesEndRef = useRef(null)
 
     // Welcome message
@@ -14,7 +17,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
             role: 'assistant',
             content: role === 'doctor'
                 ? "👨‍⚕️ Welcome, Doctor! How can I assist you today?"
-                : "👋 Hello! I'm your Medical Assistant. I can help you book appointments, check availability, and more. How can I help you today?"
+                : "👋 Hello! I'm your Medical Assistant. I can help you:\n\n• Book appointments\n• Check availability\n• Cancel appointments\n• View your schedule\n\nHow can I help you today?"
         }
         setMessages([welcomeMsg])
     }, [role])
@@ -24,21 +27,41 @@ function Chat({ role = 'patient', userId, userEmail }) {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
+    // Parse suggested actions from bot response
+    const parseSuggestedActions = (content) => {
+        // Look for lists or options in the message
+        if (content.includes('9:00 AM') || content.includes('time')) {
+            return ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM']
+        }
+        if (content.toLowerCase().includes('confirm') || content.toLowerCase().includes('yes or no')) {
+            return ['Yes, confirm', 'No, cancel']
+        }
+        if (content.toLowerCase().includes('doctor') && content.includes('Sarah')) {
+            return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
+        }
+        return []
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (!input.trim()) return
+        sendMessage(input)
+    }
 
-        const userMessage = { role: 'user', content: input }
+    const sendMessage = async (messageText) => {
+        const userMessage = { role: 'user', content: messageText }
         setMessages(prev => [...prev, userMessage])
         setInput('')
         setIsLoading(true)
+        setSuggestedActions([])
 
         try {
             const response = await fetch(`${API_URL}/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: input,
+                    message: messageText,
+                    session_id: sessionId,
                     role: role,
                     user_id: userId,
                     user_email: userEmail
@@ -52,6 +75,11 @@ function Chat({ role = 'patient', userId, userEmail }) {
                     content: data.response || 'I received your message.'
                 }
                 setMessages(prev => [...prev, assistantMessage])
+                setSessionId(data.session_id)
+
+                // Parse and set suggested actions
+                const actions = parseSuggestedActions(data.response)
+                setSuggestedActions(actions)
             } else {
                 throw new Error('Failed to get response')
             }
@@ -65,6 +93,10 @@ function Chat({ role = 'patient', userId, userEmail }) {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const handleQuickAction = (action) => {
+        sendMessage(action)
     }
 
     return (
@@ -82,10 +114,33 @@ function Chat({ role = 'patient', userId, userEmail }) {
                                     : 'bg-white/10 text-white border border-white/20'
                                 }`}
                         >
-                            <p className="whitespace-pre-wrap">{msg.content}</p>
+                            <ReactMarkdown className="prose prose-invert max-w-none">
+                                {msg.content}
+                            </ReactMarkdown>
                         </div>
                     </div>
                 ))}
+
+                {/* Suggested Actions */}
+                {suggestedActions.length > 0 && !isLoading && (
+                    <div className="flex justify-start">
+                        <div className="max-w-[70%]">
+                            <p className="text-white/60 text-sm mb-2">Quick options:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {suggestedActions.map((action, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleQuickAction(action)}
+                                        className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors text-sm"
+                                    >
+                                        {action}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {isLoading && (
                     <div className="flex justify-start">
                         <div className="bg-white/10 text-white border border-white/20 p-4 rounded-lg">
