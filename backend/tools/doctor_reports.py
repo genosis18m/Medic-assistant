@@ -371,3 +371,64 @@ def send_slack_notification(
             
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+def send_report_to_whatsapp(
+    doctor_id: int,
+    report_type: str = "daily",
+    date_str: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Generate a report and send it to the doctor via WhatsApp.
+    
+    Args:
+        doctor_id: ID of the doctor
+        report_type: Type of report ("daily" or "weekly")
+        date_str: Specific date for report, defaults to today
+        
+    Returns:
+        Dictionary with delivery status
+    """
+    try:
+        from services.whatsapp_service import send_doctor_report_whatsapp
+        
+        with get_session() as session:
+            doctor = session.get(Doctor, doctor_id)
+            if not doctor:
+                return {"success": False, "error": f"Doctor with ID {doctor_id} not found"}
+            
+            # Check if doctor has phone number
+            if not hasattr(doctor, 'phone_number') or not doctor.phone_number:
+                return {
+                    "success": False,
+                    "error": "Doctor phone number not configured. Please update doctor profile."
+                }
+            
+            # Generate report
+            report = generate_summary_report(
+                doctor_id=doctor_id,
+                report_type=report_type,
+                date_str=date_str,
+                send_notification=False
+            )
+            
+            if not report.get("success"):
+                return report
+            
+            # Send via WhatsApp
+            whatsapp_result = send_doctor_report_whatsapp(
+                doctor_phone=doctor.phone_number,
+                doctor_name=doctor.name,
+                report_summary=report["summary"]
+            )
+            
+            return {
+                "success": whatsapp_result.get("success", False),
+                "message": "Report sent to WhatsApp" if whatsapp_result.get("success") else "Failed to send WhatsApp",
+                "report_summary": report["summary"],
+                "whatsapp_status": whatsapp_result
+            }
+            
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
