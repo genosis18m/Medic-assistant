@@ -2,6 +2,25 @@ import { useState, useRef, useEffect } from 'react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+// Quick action suggestions
+const COMMON_SYMPTOMS = [
+    "Fever", "Headache", "Cough", "Cold",
+    "Back Pain", "Stomach Ache", "Fatigue", "Other"
+]
+
+const VISIT_REASONS = [
+    "General Checkup", "Follow-up Visit",
+    "Emergency", "Consultation",
+    "Prescription Refill", "Test Results"
+]
+
+const TIME_SLOTS = [
+    "9:00 AM", "10:00 AM", "11:00 AM",
+    "2:00 PM", "3:00 PM", "4:00 PM"
+]
+
+const CONFIRMATIONS = ["Yes", "No"]
+
 function Chat({ role = 'patient', userId, userEmail }) {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
