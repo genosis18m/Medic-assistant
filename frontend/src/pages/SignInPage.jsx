@@ -66,8 +66,7 @@ function SignInPage() {
                                 footerActionLink: 'text-emerald-300 hover:text-emerald-100'
                             }
                         }}
-                        routing="path"
-                        path="/sign-in"
+                        redirectUrl="/patient"
                         signUpUrl="/sign-up"
                     />
                 )}
