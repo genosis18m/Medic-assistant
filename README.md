@@ -10,12 +10,44 @@ An AI-powered medical appointment booking and reporting system using **FastAPI**
 - **Multi-turn Conversations**: Context is maintained between prompts
 - **Email Confirmations**: Automatic booking confirmations (Gmail SMTP)
 - **Calendar Integration**: Google Calendar events created automatically
+- **Visit History Tracking**: All visits saved with reasons and symptoms
 
 ### 👨‍⚕️ Doctor Features
 - **AI-Powered Queries**: "How many patients visited yesterday?" or "Show patients with fever"
 - **Summary Reports**: Daily/weekly appointment summaries
 - **Slack Notifications**: Send reports directly to Slack
+- **WhatsApp Notifications**: Send reports via WhatsApp (Twilio)
+- **Patient History**: View complete visit history for any patient
+- **Prescriptions**: Add medications per visit
+- **PDF Reports**: Generate downloadable patient reports
 - **Dashboard View**: Visual stats and quick actions
+
+## 🔧 13 MCP Tools
+
+### Patient Tools (4)
+| Tool | Description |
+|------|-------------|
+| `check_availability` | Find available appointment slots |
+| `book_appointment` | Book with email + calendar + creates visit record |
+| `cancel_appointment` | Cancel existing appointments |
+| `list_appointments` | View scheduled appointments |
+
+### Doctor Tools (5)
+| Tool | Description |
+|------|-------------|
+| `get_appointment_stats` | Query appointment statistics |
+| `get_patient_stats` | Find patients by symptoms/diagnosis |
+| `generate_summary_report` | Create daily/weekly reports |
+| `send_slack_notification` | Send reports to Slack |
+| `send_report_to_whatsapp` | Send reports via WhatsApp |
+
+### Patient History Tools (4)
+| Tool | Description |
+|------|-------------|
+| `get_patient_history` | View complete visit history |
+| `add_visit_notes` | Add diagnosis and doctor notes |
+| `add_prescription` | Add medications per visit |
+| `generate_patient_report` | Generate PDF patient report |
 
 ## 🏗️ Architecture
 
@@ -25,6 +57,7 @@ An AI-powered medical appointment booking and reporting system using **FastAPI**
 │                  localhost:5173                                 │
 │   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
 │   │ Role Selector│  │   Chat UI    │  │   Dashboard  │         │
+│   │(Patient/Doc) │  │(Multi-turn)  │  │(Doctor Only) │         │
 │   └──────────────┘  └──────────────┘  └──────────────┘         │
 └───────────────────────────┬─────────────────────────────────────┘
                             │ HTTP/JSON
@@ -38,25 +71,20 @@ An AI-powered medical appointment booking and reporting system using **FastAPI**
 │  └───────────────────────┬───────────────────────────────────┘ │
 │                          │ Function Calling                    │
 │  ┌───────────────────────▼───────────────────────────────────┐ │
-│  │                    MCP Tools                              │ │
-│  │  Patient Tools:              Doctor Tools:                │ │
-│  │  • check_availability        • get_appointment_stats      │ │
-│  │  • book_appointment          • get_patient_stats          │ │
-│  │  • cancel_appointment        • generate_summary_report    │ │
-│  │  • list_appointments         • send_slack_notification    │ │
+│  │                  13 MCP Tools                             │ │
+│  │  Patient(4) + Doctor(5) + History(4)                      │ │
 │  └───────────────────────┬───────────────────────────────────┘ │
 │                          │                                     │
 │  ┌───────────────────────▼───────────────────────────────────┐ │
 │  │              External Services                            │ │
-│  │  📅 Google Calendar  |  📧 Gmail SMTP  |  💬 Slack        │ │
+│  │  📅 Google Calendar | 📧 Gmail | 💬 Slack | 📱 WhatsApp   │ │
 │  └───────────────────────────────────────────────────────────┘ │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
                           ▼
              ┌────────────────────────┐
-             │   PostgreSQL / SQLite  │
-             │   (Doctors, Patients,  │
-             │    Appointments)       │
+             │   Neon PostgreSQL      │
+             │   (6 Tables)           │
              └────────────────────────┘
 ```
 
@@ -66,30 +94,18 @@ An AI-powered medical appointment booking and reporting system using **FastAPI**
 - Python 3.12+
 - Node.js 18+
 - Groq API Key (free at [console.groq.com](https://console.groq.com))
-- PostgreSQL (optional, SQLite used by default)
 
 ### Backend Setup
 
 ```bash
 cd backend
-
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Configure environment
 cp .env.example .env
-# Edit .env and add your GROQ_API_KEY
-
-# Run server
+# Add your GROQ_API_KEY to .env
 uvicorn main:app --reload
 ```
-
-Backend available at `http://localhost:8000`
 
 ### Frontend Setup
 
@@ -99,29 +115,35 @@ npm install
 npm run dev
 ```
 
-Frontend available at `http://localhost:5173`
-
 ## 🔧 Environment Variables
 
 ```bash
 # Required
 GROQ_API_KEY=your_groq_api_key
 
-# Database (optional - defaults to SQLite)
-DATABASE_URL=postgresql://user:pass@localhost:5432/medical_db
+# Database (Neon PostgreSQL)
+DATABASE_URL=postgresql://user:pass@host/dbname?sslmode=require
 
-# Google Calendar (optional)
+# Google Calendar
 GOOGLE_CLIENT_ID=your_client_id
 GOOGLE_CLIENT_SECRET=your_client_secret
 
-# Email (optional)
+# Email (Gmail SMTP)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_email@gmail.com
 SMTP_PASSWORD=your_app_password
 
-# Slack (optional)
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz
+# Slack
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx
+
+# WhatsApp (Twilio)
+TWILIO_ACCOUNT_SID=your_sid
+TWILIO_AUTH_TOKEN=your_token
+TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+
+# Clerk Auth (Frontend)
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx
 ```
 
 ## 📡 API Endpoints
@@ -130,12 +152,10 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz
 |--------|----------|-------------|
 | GET | `/health` | Health check |
 | GET | `/doctors` | List all doctors |
-| POST | `/doctors` | Create a new doctor |
-| POST | `/chat` | AI chat endpoint (supports role param) |
+| POST | `/chat` | AI chat (role: patient/doctor) |
 | POST | `/doctor/report` | Generate doctor report |
-| GET | `/appointments` | List appointments with filters |
-| GET | `/stats` | Get appointment statistics |
-| POST | `/notifications/test-slack` | Test Slack webhook |
+| GET | `/appointments` | List appointments |
+| GET | `/stats` | Get statistics |
 
 ## 💬 Sample Prompts
 
@@ -144,7 +164,6 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz
 "I want to book an appointment with Dr. Chen tomorrow morning"
 "Show me available times with a cardiologist"
 "Cancel my appointment #3"
-"What appointments do I have scheduled?"
 ```
 
 ### Doctor Mode
@@ -152,68 +171,47 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz
 "How many patients visited yesterday?"
 "How many appointments do I have today?"
 "Show me patients with fever this week"
-"Generate my daily report and send to Slack"
+"Generate my daily report and send to WhatsApp"
 ```
 
-## 🎯 Multi-Turn Conversation Example
+## 🎯 Multi-Turn Conversation
 
 ```
 Patient: "Check Dr. Chen's availability for Friday"
-AI: "Dr. Michael Chen (Cardiology) has these slots available on Friday..."
+AI: "Dr. Michael Chen has these slots available..."
 
 Patient: "Book the 3 PM slot"
-AI: "I'll book that for you. What's your name and email?"
+AI: "I'll book that. What's your name and email?"
 
 Patient: "John Doe, john@example.com"
-AI: "✅ Appointment confirmed! You'll receive an email confirmation..."
+AI: "What's the reason for your visit?"
+
+Patient: "Fever"
+AI: "✅ Appointment confirmed! Email and calendar invite sent."
 ```
 
-## 🛠️ Tech Stack
+## Database Schema
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 18, Vite, Tailwind CSS |
-| Backend | FastAPI, Python 3.12 |
-| Database | PostgreSQL / SQLite |
-| LLM | Groq (Llama 3.1 8B) |
-| Calendar | Google Calendar API |
-| Email | Gmail SMTP / SendGrid |
-| Notifications | Slack Webhooks |
+| Table | Description |
+|-------|-------------|
+| `doctor` | Doctors with specializations |
+| `patient` | Patient information |
+| `appointment` | Booked appointments |
+| `visit` | Visit history with symptoms/diagnosis |
+| `prescription` | Medications per visit |
+| `prompthistory` | Chat history tracking |
 
-## 📁 Project Structure
+## 🏆 Bonus Features
 
-```
-├── backend/
-│   ├── main.py              # FastAPI app & endpoints
-│   ├── database.py          # Database configuration
-│   ├── models.py            # SQLModel models
-│   ├── agent.py             # Agentic brain with Groq
-│   ├── services/
-│   │   ├── google_calendar.py
-│   │   ├── email_service.py
-│   │   └── slack_service.py
-│   └── tools/
-│       ├── availability.py  # Check availability tool
-│       ├── booking.py       # Booking tools
-│       └── doctor_reports.py # Doctor reporting tools
-│
-├── frontend/
-│   └── src/
-│       ├── App.jsx
-│       └── components/
-│           ├── Chat.jsx          # Role-aware chat interface
-│           ├── RoleSelector.jsx  # Patient/Doctor selection
-│           └── DoctorDashboard.jsx
-└── README.md
-```
-
-## 🏆 Bonus Features Implemented
-
-- [x] Role-based UI (Patient vs Doctor views)
-- [x] Prompt history tracking (stored in database)
-- [x] Multi-notification channels (Email + Slack)
+- [x] Role-based UI (Patient vs Doctor)
+- [x] Prompt history tracking
+- [x] Multiple notification channels (Email + Slack + WhatsApp)
 - [x] Dashboard with visual stats
 - [x] Multi-turn conversation support
+- [x] Clerk authentication
+- [x] Patient history tracking
+- [x] Prescription management
+- [x] PDF report generation
 
 ## 📝 License
 
