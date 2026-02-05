@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut, useUser, UserButton } from '@clerk/clerk-react'
-import Chat from './components/Chat'
+import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react'
 import RoleSelector from './components/RoleSelector'
-import DoctorDashboard from './components/DoctorDashboard'
 import SignInPage from './pages/SignInPage'
 import SignUpPage from './pages/SignUpPage'
+import PatientPage from './pages/PatientPage'
+import DoctorDashboardPage from './pages/DoctorDashboardPage'
+import DoctorChatPage from './pages/DoctorChatPage'
 
 function MainApp() {
     const { user } = useUser()
@@ -139,8 +140,17 @@ function App() {
     const simpleDoctorData = simpleDoctorAuth ? JSON.parse(simpleDoctorAuth) : null
 
     if (simpleDoctorData) {
-        // Simple doctor is logged in - render simplified app
-        return <SimpleDoctorApp doctorData={simpleDoctorData} />
+        // Simple doctor is logged in - render doctor dashboard
+        return (
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<DoctorDashboardPage doctorId={simpleDoctorData.doctorId} userEmail={simpleDoctorData.email} />} />
+                    <Route path="/doctor" element={<DoctorDashboardPage doctorId={simpleDoctorData.doctorId} userEmail={simpleDoctorData.email} />} />
+                    <Route path="/doctor/chat" element={<SimpleDoctorChatPage doctorData={simpleDoctorData} />} />
+                    <Route path="*" element={<Navigate to="/doctor" replace />} />
+                </Routes>
+            </BrowserRouter>
+        )
     }
 
     // Normal Clerk-based authentication
@@ -154,7 +164,7 @@ function App() {
                     element={
                         <>
                             <SignedIn>
-                                <MainApp />
+                                <MainAppRouter />
                             </SignedIn>
                             <SignedOut>
                                 <Navigate to="/sign-in" replace />
@@ -164,6 +174,31 @@ function App() {
                 />
             </Routes>
         </BrowserRouter>
+    )
+}
+
+// Router for authenticated users
+function MainAppRouter() {
+    const { user } = useUser()
+    const userEmail = user?.primaryEmailAddress?.emailAddress
+    const canAccessDoctor = ['doctor12345@gmail.com', 'adonimohit@gmail.com'].includes(userEmail)
+    const doctorId = 5 // Dr. Mohit Adoni for demo doctors
+
+    return (
+        <Routes>
+            <Route path="/" element={<RoleSelector onSelectRole={(role) => {
+                if (role === 'patient') window.location.href = '/patient'
+                else window.location.href = '/doctor'
+            }} currentRole={null} userEmail={userEmail} />} />
+            <Route path="/patient" element={<PatientPage />} />
+            {canAccessDoctor && (
+                <>
+                    <Route path="/doctor" element={<DoctorDashboardPage doctorId={doctorId} userEmail={userEmail} />} />
+                    <Route path="/doctor/chat" element={<DoctorChatPage />} />
+                </>
+            )}
+            <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
     )
 }
 
