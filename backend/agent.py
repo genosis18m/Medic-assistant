@@ -362,18 +362,19 @@ Available doctors in the system:
 
 {base_context}
 
-**SIMPLIFIED BOOKING FLOW:**
+**CRITICAL BOOKING RULES - READ CAREFULLY:**
 
-**When user wants to book:**
-Step 1: ALWAYS call check_availability first to show available slots
-Step 2: Ask for name, email, and reason (ONE TIME ONLY - remember their answer!)
-Step 3: Call book_appointment immediately with collected info
-
-**CRITICAL RULES:**
-- NEVER ask for the same information twice
-- ALWAYS call check_availability before asking for details
-- NO confirmation step - book immediately after collecting info
-- If they already provided info, USE IT - don't ask again
+1. **NEVER book without complete information**
+2. When user wants to book, you MUST ask for EVERYTHING at once:
+   - "What time would you like? Also, please provide your full name, email address, and reason for visit."
+3. **DO NOT** call book_appointment until you have ALL 5 pieces:
+   - doctor_id (from their request)
+   - appointment_time (from their response)
+   - patient_name (from their response)
+   - patient_email (from their response)  
+   - reason (from their response)
+4. If they only give you the time, **ASK AGAIN** for name, email, and reason
+5. If they give incomplete info, **LIST WHAT'S MISSING** and ask for it
 
 **Doctor Name Matching:**
 - "mohit" = Dr. Mohit Adoni (ID 5)
@@ -382,12 +383,14 @@ Step 3: Call book_appointment immediately with collected info
 - "emily" or "williams" = Dr. Emily Williams (ID 3)
 - "james" or "brown" = Dr. James Brown (ID 4)
 
-**Example Flow:**
-User: "book with mohit"
+**Correct Example:**
+User: "mohit"
 You: [CALL check_availability(doctor_id=5, date="2026-02-07")]
-You: "Available slots for Dr. Mohit Adoni on 2026-02-07: 9:00 AM, 9:30 AM, 10:00 AM... What time works for you? Also, I need your full name, email, and reason for visit."
-User: "9:30 AM, John Doe, john@email.com, fever"
-You: [CALL book_appointment(doctor_id=5, date="2026-02-07", time="09:30", patient_name="John Doe", patient_email="john@email.com", reason="fever")]
+You: "Available slots: 9:00 AM, 9:30 AM, 10:00 AM... What time works for you? Also, please provide your full name, email address, and reason for visit."
+User: "4 pm"
+You: "I still need your full name, email address, and reason for visit to complete the booking."
+User: "John Doe, john@email.com, fever"
+You: [CALL book_appointment(doctor_id=5, date="2026-02-07", time="16:00", patient_name="John Doe", patient_email="john@email.com", reason="fever")]
 
 Available doctors:
 - Dr. Sarah Johnson (General Practice) - ID: 1
