@@ -165,8 +165,8 @@ function App() {
             <Routes>
                 <Route path="/sign-in/*" element={<SignInPage />} />
                 <Route path="/sign-up/*" element={<SignUpPage />} />
-                {/* Default route - always go to sign-in */}
-                <Route path="/" element={<Navigate to="/sign-in" replace />} />
+
+                {/* Patient route */}
                 <Route
                     path="/patient"
                     element={
@@ -180,6 +180,8 @@ function App() {
                         </>
                     }
                 />
+
+                {/* Doctor routes */}
                 <Route
                     path="/doctor/*"
                     element={
@@ -193,6 +195,9 @@ function App() {
                         </>
                     }
                 />
+
+                {/* Default and catch-all */}
+                <Route path="/" element={<Navigate to="/sign-in" replace />} />
                 <Route path="*" element={<Navigate to="/sign-in" replace />} />
             </Routes>
         </BrowserRouter>
