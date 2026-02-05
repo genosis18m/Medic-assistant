@@ -12,19 +12,11 @@ function PatientPage() {
     const [appointments, setAppointments] = useState([])
     const [loading, setLoading] = useState(false)
 
-    // Show loading while Clerk is initializing
-    if (!isLoaded) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-                <div className="text-white text-xl">Loading...</div>
-            </div>
-        )
-    }
-
-    // Redirect if not authenticated
-    if (!user) {
-        return <Navigate to="/sign-in" replace />
-    }
+    useEffect(() => {
+        if (user?.primaryEmailAddress?.emailAddress) {
+            fetchAppointments()
+        }
+    }, [user])
 
     const fetchAppointments = async () => {
         try {
@@ -42,11 +34,19 @@ function PatientPage() {
         }
     }
 
-    useEffect(() => {
-        if (user?.primaryEmailAddress?.emailAddress) {
-            fetchAppointments()
-        }
-    }, [user])
+    // Show loading while Clerk is initializing
+    if (!isLoaded) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+                <div className="text-white text-xl">Loading...</div>
+            </div>
+        )
+    }
+
+    // Redirect if not authenticated
+    if (!user) {
+        return <Navigate to="/sign-in" replace />
+    }
 
     return (
         <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -78,8 +78,8 @@ function PatientPage() {
                                     <p className="text-teal-300 text-xs">{apt.appointment_date} at {apt.appointment_time}</p>
                                     <p className="text-white/60 text-xs mt-1">{apt.reason}</p>
                                     <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs ${apt.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
-                                        apt.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
-                                            'bg-yellow-500/20 text-yellow-300'
+                                            apt.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
+                                                'bg-yellow-500/20 text-yellow-300'
                                         }`}>
                                         {apt.status}
                                     </span>
