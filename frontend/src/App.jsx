@@ -219,31 +219,6 @@ function SimpleDoctorApp({ doctorData }) {
     )
 }
 
-function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                {/* Public routes */}
-                <Route path="/sign-in/*" element={<SignInPage />} />
-                <Route path="/sign-up/*" element={<SignUpPage />} />
-
-                {/* Protected routes */}
-                <Route
-                    path="/"
-                    element={
-                        <>
-                            <SignedIn>
-                                <MainApp />
-                            </SignedIn>
-                            <SignedOut>
-                                <Navigate to="/sign-in" replace />
-                            </SignedOut>
-                        </>
-                    }
-                />
-            </Routes>
-        </BrowserRouter>
-    )
-}
 
 export default App
+
