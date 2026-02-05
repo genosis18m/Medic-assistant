@@ -149,6 +149,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<DoctorDashboardPage doctorId={simpleDoctorData.doctorId} userEmail={simpleDoctorData.email} />} />
                     <Route path="/doctor" element={<DoctorDashboardPage doctorId={simpleDoctorData.doctorId} userEmail={simpleDoctorData.email} />} />
+                    <Route path="/doctor/dashboard" element={<DoctorDashboardPage doctorId={simpleDoctorData.doctorId} userEmail={simpleDoctorData.email} />} />
                     <Route path="/doctor/chat" element={<SimpleDoctorChatPage doctorData={simpleDoctorData} />} />
                     <Route path="/doctor/appointments" element={<DoctorAppointmentsPage doctorId={simpleDoctorData.doctorId} />} />
                     <Route path="/doctor/reports" element={<DoctorReportsPage doctorId={simpleDoctorData.doctorId} />} />
@@ -201,6 +202,7 @@ function MainAppRouter() {
             {canAccessDoctor && (
                 <>
                     <Route path="/doctor" element={<DoctorDashboardPage doctorId={doctorId} userEmail={userEmail} />} />
+                    <Route path="/doctor/dashboard" element={<DoctorDashboardPage doctorId={doctorId} userEmail={userEmail} />} />
                     <Route path="/doctor/chat" element={<DoctorChatPage />} />
                     <Route path="/doctor/appointments" element={<DoctorAppointmentsPage doctorId={doctorId} />} />
                     <Route path="/doctor/reports" element={<DoctorReportsPage doctorId={doctorId} />} />
