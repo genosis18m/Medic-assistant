@@ -1,20 +1,22 @@
 import { useState, useRef, useEffect } from 'react'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-function Chat({ role = 'patient', onRoleChange }) {
+function Chat({ role = 'patient', userId, userEmail }) {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [sessionId, setSessionId] = useState(null)
+    const [showPreview, setShowPreview] = useState(false)
     const messagesEndRef = useRef(null)
+    const textareaRef = useRef(null)
 
     // Role-specific welcome messages
     const getWelcomeMessage = () => {
         if (role === 'doctor') {
             return {
                 role: 'assistant',
-                content: "👨‍⚕️ Welcome, Doctor! I can help you with:\n\n• View today's appointment stats\n• Check patient records by symptoms\n• Generate daily/weekly reports\n• Send summaries to Slack\n\nWhat would you like to know?"
+                content: "👨‍⚕️ Welcome, Doctor! I can help you with:\n\n• View today's appointment stats\n• Check patient records by symptoms\n•Generate daily/weekly reports\n• Send summaries to Slack/WhatsApp\n\nWhat would you like to know?"
             }
         }
         return {
@@ -37,14 +39,22 @@ function Chat({ role = 'patient', onRoleChange }) {
         scrollToBottom()
     }, [messages])
 
-    const sendMessage = async (e) => {
-        e.preventDefault()
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto'
+            textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px'
+        }
+    }, [input])
+
+    const sendMessage = async () => {
         if (!input.trim() || isLoading) return
 
         const userMessage = input.trim()
         setInput('')
         setMessages(prev => [...prev, { role: 'user', content: userMessage }])
         setIsLoading(true)
+        setShowPreview(true)
 
         try {
             const response = await fetch(`${API_URL}/chat`, {
@@ -65,15 +75,28 @@ function Chat({ role = 'patient', onRoleChange }) {
 
             const data = await response.json()
             setSessionId(data.session_id)
-            setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: data.response,
+                timestamp: new Date().toISOString()
+            }])
         } catch (error) {
             console.error('Chat error:', error)
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: '❌ Sorry, I encountered an error. Please make sure the backend server is running on port 8000.'
+                content: '❌ Sorry, I encountered an error. Please make sure the backend server is running.'
             }])
         } finally {
             setIsLoading(false)
+            setShowPreview(false)
+        }
+    }
+
+    // Handle Enter key (send) vs Shift+Enter (new line)
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            sendMessage()
         }
     }
 
@@ -83,7 +106,7 @@ function Chat({ role = 'patient', onRoleChange }) {
             "How many patients today?",
             "Show me appointments with fever",
             "Generate my daily report",
-            "Send summary to Slack"
+            "Send summary to WhatsApp"
         ]
         : [
             "Show me available doctors",
@@ -91,6 +114,14 @@ function Chat({ role = 'patient', onRoleChange }) {
             "What times are available tomorrow?",
             "Book an appointment"
         ]
+
+    // Expected response preview
+    const getExpectedResponse = () => {
+        if (role === 'doctor') {
+            return "📊 I'm checking your patient records and stats..."
+        }
+        return "🔍 Let me check available appointments for you..."
+    }
 
     return (
         <div className="flex-1 max-w-4xl mx-auto w-full flex flex-col p-4">
@@ -110,10 +141,25 @@ function Chat({ role = 'patient', onRoleChange }) {
                                 }`}
                         >
                             <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                            {message.timestamp && message.role === 'assistant' && (
+                                <p className="text-xs text-slate-400 mt-2">
+                                    {new Date(message.timestamp).toLocaleTimeString()}
+                                </p>
+                            )}
                         </div>
                     </div>
                 ))}
 
+                {/* Response Preview */}
+                {showPreview && isLoading && (
+                    <div className="flex justify-start">
+                        <div className="max-w-[80%] bg-slate-800/50 border border-slate-700/50 rounded-2xl px-4 py-3">
+                            <p className="text-slate-400 text-sm italic">{getExpectedResponse()}</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Loading indicator */}
                 {isLoading && (
                     <div className="flex justify-start">
                         <div className="bg-slate-800/80 rounded-2xl px-4 py-3 border border-slate-700/50">
@@ -152,33 +198,40 @@ function Chat({ role = 'patient', onRoleChange }) {
             )}
 
             {/* Input Form */}
-            <form onSubmit={sendMessage} className="flex gap-3">
-                <input
-                    type="text"
+            <div className="relative">
+                <textarea
+                    ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={role === 'doctor' ? "Ask about your patients..." : "Type your message..."}
+                    onKeyDown={handleKeyDown}
+                    placeholder={role === 'doctor' ? "Ask about your patients... (Shift+Enter for new line)" : "Type your message... (Shift+Enter for new line)"}
                     disabled={isLoading}
-                    className={`flex-1 px-4 py-3 rounded-xl bg-slate-800/70 border border-slate-700/50 
-                   text-white placeholder-slate-500 focus:outline-none transition-all duration-200
+                    rows={1}
+                    className={`w-full px-4 py-3 pr-14 rounded-xl bg-slate-800/70 border border-slate-700/50 
+                   text-white placeholder-slate-500 focus:outline-none transition-all duration-200 resize-none
                    ${role === 'doctor'
                             ? 'focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
                             : 'focus:border-medical-teal focus:ring-2 focus:ring-medical-teal/20'}`}
                 />
                 <button
-                    type="submit"
+                    onClick={sendMessage}
                     disabled={isLoading || !input.trim()}
-                    className={`px-6 py-3 text-white rounded-xl font-medium hover:opacity-90 
-                   disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200
-                   hover:shadow-lg ${role === 'doctor'
-                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-purple-500/20'
-                            : 'bg-gradient-to-r from-medical-teal to-medical-blue hover:shadow-medical-teal/20'}`}
+                    className={`absolute right-2 bottom-2 p-2 text-white rounded-lg transition-all duration-200
+                   disabled:opacity-50 disabled:cursor-not-allowed ${role === 'doctor'
+                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90'
+                            : 'bg-gradient-to-r from-medical-teal to-medical-blue hover:opacity-90'}`}
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
                 </button>
-            </form>
+            </div>
+
+            {/* Helper text */}
+            <p className="text-xs text-slate-500 mt-2 text-center">
+                Press <kbd className="px-1 py-0.5 bg-slate-700 rounded">Enter</kbd> to send •
+                <kbd className="px-1 py-0.5 bg-slate-700 rounded ml-1">Shift + Enter</kbd> for new line
+            </p>
         </div>
     )
 }

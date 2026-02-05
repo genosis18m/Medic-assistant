@@ -1,11 +1,24 @@
 import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { SignedIn, SignedOut, useUser, UserButton } from '@clerk/clerk-react'
 import Chat from './components/Chat'
 import RoleSelector from './components/RoleSelector'
 import DoctorDashboard from './components/DoctorDashboard'
+import SignInPage from './pages/SignInPage'
+import SignUpPage from './pages/SignUpPage'
 
-function App() {
-    const [role, setRole] = useState(null) // null = show selector, 'patient' or 'doctor'
+function MainApp() {
+    const { user } = useUser()
+    const [role, setRole] = useState(null)
     const [showDashboard, setShowDashboard] = useState(false)
+
+    // Get user role from Clerk metadata
+    const userRole = user?.unsafeMetadata?.role || 'patient'
+
+    // Auto-set role from Clerk user metadata
+    if (!role && user) {
+        setRole(userRole)
+    }
 
     // Show role selector if no role selected
     if (!role) {
@@ -14,7 +27,7 @@ function App() {
 
     // Show doctor dashboard
     if (role === 'doctor' && showDashboard) {
-        return <DoctorDashboard onBack={() => setShowDashboard(false)} />
+        return <DoctorDashboard onBack={() => setShowDashboard(false)} userId={user?.id} />
     }
 
     return (
@@ -71,6 +84,15 @@ function App() {
                             {role === 'doctor' ? '👨‍⚕️ Doctor' : '🧑 Patient'}
                         </span>
 
+                        {/* User button (Clerk profile/sign out) */}
+                        <UserButton
+                            appearance={{
+                                elements: {
+                                    avatarBox: 'w-10 h-10'
+                                }
+                            }}
+                        />
+
                         {/* Switch role button */}
                         <button
                             onClick={() => setRole(null)}
@@ -88,7 +110,7 @@ function App() {
 
             {/* Main Content */}
             <main className="flex-1 flex">
-                <Chat role={role} />
+                <Chat role={role} userId={user?.id} userEmail={user?.primaryEmailAddress?.emailAddress} />
             </main>
 
             {/* Footer */}
@@ -99,6 +121,33 @@ function App() {
                 </p>
             </footer>
         </div>
+    )
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* Public routes */}
+                <Route path="/sign-in/*" element={<SignInPage />} />
+                <Route path="/sign-up/*" element={<SignUpPage />} />
+
+                {/* Protected routes */}
+                <Route
+                    path="/"
+                    element={
+                        <>
+                            <SignedIn>
+                                <MainApp />
+                            </SignedIn>
+                            <SignedOut>
+                                <Navigate to="/sign-in" replace />
+                            </SignedOut>
+                        </>
+                    }
+                />
+            </Routes>
+        </BrowserRouter>
     )
 }
 
