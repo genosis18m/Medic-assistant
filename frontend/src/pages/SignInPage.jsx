@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { SignIn } from '@clerk/clerk-react'
+import { SignIn, SignedIn, SignedOut, useClerk } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import SimpleDoctorLogin from '../components/SimpleDoctorLogin'
 
 function SignInPage() {
     const [isDoctorMode, setIsDoctorMode] = useState(false)
     const navigate = useNavigate()
+    const { signOut } = useClerk()
 
     const handleDoctorLoginSuccess = (doctorData) => {
         // Store doctor data in localStorage for the app to use
@@ -27,49 +28,73 @@ function SignInPage() {
                     <p className="text-emerald-100/80 text-lg">AI-Powered Healthcare Platform</p>
                 </div>
 
-                {/* Toggle between Clerk and Doctor Login */}
-                <div className="flex gap-2 mb-6">
-                    <button
-                        onClick={() => setIsDoctorMode(false)}
-                        className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${!isDoctorMode
-                            ? 'bg-white text-emerald-900'
-                            : 'bg-white/10 text-white hover:bg-white/20'
-                            }`}
-                    >
-                        Patient Login
-                    </button>
-                    <button
-                        onClick={() => setIsDoctorMode(true)}
-                        className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${isDoctorMode
-                            ? 'bg-white text-emerald-900'
-                            : 'bg-white/10 text-white hover:bg-white/20'
-                            }`}
-                    >
-                        👨‍⚕️ Doctor Login
-                    </button>
-                </div>
+                {/* Check if already signed in */}
+                <SignedIn>
+                    <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm text-center">
+                        <p className="text-white mb-4">You're already signed in!</p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => navigate('/patient')}
+                                className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                            >
+                                Continue to App
+                            </button>
+                            <button
+                                onClick={() => signOut()}
+                                className="flex-1 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-400/30 rounded-lg transition-colors"
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </SignedIn>
 
-                {/* Show either Clerk or Simple Doctor Login */}
-                {isDoctorMode ? (
-                    <SimpleDoctorLogin onSuccess={handleDoctorLoginSuccess} />
-                ) : (
-                    <SignIn
-                        appearance={{
-                            elements: {
-                                rootBox: 'mx-auto',
-                                card: 'bg-white/10 border border-white/20 shadow-xl backdrop-blur-sm',
-                                headerTitle: 'text-white',
-                                headerSubtitle: 'text-emerald-100/70',
-                                formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
-                                formFieldInput: 'bg-white/10 border-white/30 text-white placeholder-white/50',
-                                formFieldLabel: 'text-emerald-100',
-                                footerActionLink: 'text-emerald-300 hover:text-emerald-100'
-                            }
-                        }}
-                        redirectUrl="/patient"
-                        signUpUrl="/sign-up"
-                    />
-                )}
+                {/* Show login forms only when signed out */}
+                <SignedOut>
+                    {/* Toggle between Clerk and Doctor Login */}
+                    <div className="flex gap-2 mb-6">
+                        <button
+                            onClick={() => setIsDoctorMode(false)}
+                            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${!isDoctorMode
+                                ? 'bg-white text-emerald-900'
+                                : 'bg-white/10 text-white hover:bg-white/20'
+                                }`}
+                        >
+                            Patient Login
+                        </button>
+                        <button
+                            onClick={() => setIsDoctorMode(true)}
+                            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${isDoctorMode
+                                ? 'bg-white text-emerald-900'
+                                : 'bg-white/10 text-white hover:bg-white/20'
+                                }`}
+                        >
+                            👨‍⚕️ Doctor Login
+                        </button>
+                    </div>
+
+                    {/* Show either Clerk or Simple Doctor Login */}
+                    {isDoctorMode ? (
+                        <SimpleDoctorLogin onSuccess={handleDoctorLoginSuccess} />
+                    ) : (
+                        <SignIn
+                            appearance={{
+                                elements: {
+                                    rootBox: 'mx-auto',
+                                    card: 'bg-white/10 border border-white/20 shadow-xl backdrop-blur-sm',
+                                    headerTitle: 'text-white',
+                                    headerSubtitle: 'text-emerald-100/70',
+                                    formButtonPrimary: 'bg-emerald-600 hover:bg-emerald-700',
+                                    formFieldInput: 'bg-white/10 border-white/30 text-white placeholder-white/50',
+                                    formFieldLabel: 'text-emerald-100',
+                                    footerActionLink: 'text-emerald-300 hover:text-emerald-100'
+                                }
+                            }}
+                            redirectUrl="/patient"
+                            signUpUrl="/sign-up"
+                        />
+                    )}
+                </SignedOut>
             </div>
         </div>
     )
