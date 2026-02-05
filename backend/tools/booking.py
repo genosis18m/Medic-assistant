@@ -107,6 +107,21 @@ def book_appointment(
         session.commit()
         session.refresh(appointment)
         
+        # Create Visit record for patient history tracking
+        from models import Visit
+        visit = Visit(
+            appointment_id=appointment.id,
+            patient_name=patient_name,
+            patient_email=patient_email,
+            doctor_id=doctor_id,
+            visit_date=parsed_date,
+            visit_time=parsed_time,
+            reason=reason or "General checkup",
+            symptoms=symptoms
+        )
+        session.add(visit)
+        session.commit()
+        
         # Prepare response
         result = {
             "success": True,

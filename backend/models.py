@@ -107,3 +107,34 @@ class PromptHistory(SQLModel, table=True):
     assistant_response: str
     tools_used: Optional[str] = None  # JSON array of tool names
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Visit(SQLModel, table=True):
+    """Track patient visits with detailed history."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    appointment_id: int = Field(foreign_key="appointment.id", index=True)
+    patient_name: str = Field(index=True)
+    patient_email: str = Field(index=True)
+    doctor_id: int = Field(foreign_key="doctor.id", index=True)
+    visit_date: date = Field(index=True)
+    visit_time: time
+    reason: str  # Reason for visit
+    symptoms: Optional[str] = None  # Comma-separated symptoms
+    diagnosis: Optional[str] = None  # Doctor's diagnosis
+    doctor_notes: Optional[str] = None  # Detailed observations
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Prescription(SQLModel, table= True):
+    """Track medications prescribed during visits."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    visit_id: int = Field(foreign_key="visit.id", index=True)
+    patient_name: str = Field(index=True)
+    medication_name: str
+    dosage: str  # e.g., "500mg"
+    frequency: str  # e.g., "Twice daily"
+    duration: str  # e.g., "7 days"
+    notes: Optional[str] = None  # Additional instructions
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+

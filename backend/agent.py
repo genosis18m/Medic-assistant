@@ -20,6 +20,12 @@ from tools.doctor_reports import (
     send_slack_notification,
     send_report_to_whatsapp
 )
+from tools.patient_history import (
+    get_patient_history,
+    add_visit_notes,
+    add_prescription,
+    generate_patient_report
+)
 
 load_dotenv()
 
@@ -294,7 +300,12 @@ TOOL_FUNCTIONS = {
     "get_patient_stats": get_patient_stats,
     "generate_summary_report": generate_summary_report,
     "send_slack_notification": send_slack_notification,
-    "send_report_to_whatsapp": send_report_to_whatsapp
+    "send_report_to_whatsapp": send_report_to_whatsapp,
+    # Patient history tools
+    "get_patient_history": get_patient_history,
+    "add_visit_notes": add_visit_notes,
+    "add_prescription": add_prescription,
+    "generate_patient_report": generate_patient_report
 }
 
 # ============================================================================
