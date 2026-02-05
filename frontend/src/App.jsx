@@ -22,7 +22,7 @@ function MainApp() {
 
     // Show role selector if no role selected
     if (!role) {
-        return <RoleSelector onSelectRole={setRole} currentRole={role} />
+        return <RoleSelector onSelectRole={setRole} currentRole={role} userEmail={user?.primaryEmailAddress?.emailAddress} />
     }
 
     // Show doctor dashboard

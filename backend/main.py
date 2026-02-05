@@ -96,6 +96,12 @@ async def lifespan(app: FastAPI):
                     email="james@clinic.com",
                     specialization=Specialization.NEUROLOGY
                 ),
+                Doctor(
+                    name="Dr. Mohit Adoni",
+                    email="adonimohit@gmail.com",
+                    specialization=Specialization.GENERAL,
+                    phone_number="+919425707415"
+                ),
             ]
             for doc in doctors:
                 session.add(doc)

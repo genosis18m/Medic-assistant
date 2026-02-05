@@ -169,15 +169,6 @@ function Chat({ role = 'patient', userId, userEmail }) {
                     </div>
                 ))}
 
-                {/* Response Preview */}
-                {showPreview && isLoading && (
-                    <div className="flex justify-start">
-                        <div className="max-w-[80%] bg-slate-800/50 border border-slate-700/50 rounded-2xl px-4 py-3">
-                            <p className="text-slate-400 text-sm italic">{getExpectedResponse()}</p>
-                        </div>
-                    </div>
-                )}
-
                 {/* Loading indicator */}
                 {isLoading && (
                     <div className="flex justify-start">
