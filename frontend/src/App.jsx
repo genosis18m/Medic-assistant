@@ -15,6 +15,15 @@ function MainApp() {
     // Get user role from Clerk metadata
     const userRole = user?.unsafeMetadata?.role || 'patient'
 
+    // Map doctor emails to doctor IDs
+    const EMAIL_TO_DOCTOR_ID = {
+        'doctor12345@gmail.com': 5,  // Dr. Mohit Adoni
+        'adonimohit@gmail.com': 5     // Dr. Mohit Adoni
+    }
+
+    const userEmail = user?.primaryEmailAddress?.emailAddress
+    const doctorId = EMAIL_TO_DOCTOR_ID[userEmail] || 1
+
     // Auto-set role from Clerk user metadata
     if (!role && user) {
         setRole(userRole)
@@ -22,12 +31,12 @@ function MainApp() {
 
     // Show role selector if no role selected
     if (!role) {
-        return <RoleSelector onSelectRole={setRole} currentRole={role} userEmail={user?.primaryEmailAddress?.emailAddress} />
+        return <RoleSelector onSelectRole={setRole} currentRole={role} userEmail={userEmail} />
     }
 
     // Show doctor dashboard
     if (role === 'doctor' && showDashboard) {
-        return <DoctorDashboard onBack={() => setShowDashboard(false)} userId={user?.id} />
+        return <DoctorDashboard onBack={() => setShowDashboard(false)} userId={user?.id} doctorId={doctorId} />
     }
 
     return (
