@@ -12,12 +12,6 @@ function PatientPage() {
     const [appointments, setAppointments] = useState([])
     const [loading, setLoading] = useState(false)
 
-    useEffect(() => {
-        if (user?.primaryEmailAddress?.emailAddress) {
-            fetchAppointments()
-        }
-    }, [user])
-
     const fetchAppointments = async () => {
         try {
             setLoading(true)
@@ -33,6 +27,12 @@ function PatientPage() {
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        if (user?.primaryEmailAddress?.emailAddress) {
+            fetchAppointments()
+        }
+    }, [user])
 
     // Show loading while Clerk is initializing
     if (!isLoaded) {
@@ -92,7 +92,7 @@ function PatientPage() {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
-                <header className="py-4 px-6 shadow-lg bg-gradient-to-r from-medical-teal to-medical-blue">
+                <header className="py-4 px-6 shadow-lg bg-gradient-to-r from-teal-600 to-blue-600">
                     <div className="max-w-4xl mx-auto flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
