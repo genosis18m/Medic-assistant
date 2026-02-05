@@ -27,10 +27,14 @@ function SignUpPage() {
                     routing="path"
                     path="/sign-up"
                     signInUrl="/sign-in"
-                    unsafeMetadata={{
-                        role: 'patient' // Default role, can be changed
+                    additionalOAuthScopes={{
+                        google: ['profile', 'email']
                     }}
                 />
+
+                <p className="text-center text-slate-400 text-sm mt-4">
+                    ⚠️ Phone number required for WhatsApp notifications
+                </p>
             </div>
         </div>
     )
