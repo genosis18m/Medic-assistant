@@ -190,60 +190,81 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Actions */}
-            {messages.length <= 1 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                    {quickActions.map((action, index) => (
-                        <button
-                            key={index}
-                            onClick={() => setInput(action)}
-                            className={`px-3 py-2 text-sm bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 
-                       rounded-xl border border-slate-700/50 transition-all duration-200 
-                       ${role === 'doctor'
-                                    ? 'hover:border-purple-500/50 hover:text-purple-400'
-                                    : 'hover:border-medical-teal/50 hover:text-medical-teal'}`}
+            {/* Enhanced Input Area with Glassmorphism */}
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="glass-effect-strong border-t border-white/20 p-4"
+            >
+                <form onSubmit={handleSubmit} className="flex gap-3">
+                    <div className="flex-1 relative group">
+                        <input
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder={role === 'doctor' ? "Ask about your patients or generate reports..." : "Describe your symptoms or ask a question..."}
+                            className="input-field w-full text-white placeholder-white/40"
+                            disabled={isLoading}
+                        />
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-teal-500/20 to-blue-500/20 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none blur-xl"></div>
+                    </div>
+
+                    <motion.button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`btn-primary relative overflow-hidden ${isLoading || !input.trim()
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'pulse-glow'
+                            }`}
+                    >
+                        {isLoading ? (
+                            <motion.svg
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </motion.svg>
+                        ) : (
+                            <span className="flex items-center gap-2">
+                                Send
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </span>
+                        )}
+                    </motion.button>
+                </form>
+
+                {/* Enhanced Quick Actions with Hover Effects */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                    {quickActions.map((action, idx) => (
+                        <motion.button
+                            key={idx}
+                            onClick={() => {
+                                setInput(action)
+                                setShowPreview(true)
+                            }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="text-sm px-4 py-2 rounded-lg glass-effect text-white/80 hover:text-white hover:glass-effect-strong transition-all border border-white/10 hover:border-teal-400/50 shimmer"
                         >
-                            {action}
-                        </button>
+                            💡 {action}
+                        </motion.button>
                     ))}
                 </div>
-            )}
+            </motion.div>
 
-            {/* Input Form */}
-            <div className="relative">
-                <textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={role === 'doctor' ? "Ask about your patients... (Shift+Enter for new line)" : "Type your message... (Shift+Enter for new line)"}
-                    disabled={isLoading}
-                    rows={1}
-                    className={`w-full px-4 py-3 pr-14 rounded-xl bg-slate-800/70 border border-slate-700/50 
-                   text-white placeholder-slate-500 focus:outline-none transition-all duration-200 resize-none
-                   ${role === 'doctor'
-                            ? 'focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
-                            : 'focus:border-medical-teal focus:ring-2 focus:ring-medical-teal/20'}`}
-                />
-                <button
-                    onClick={sendMessage}
-                    disabled={isLoading || !input.trim()}
-                    className={`absolute right-2 bottom-2 p-2 text-white rounded-lg transition-all duration-200
-                   disabled:opacity-50 disabled:cursor-not-allowed ${role === 'doctor'
-                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90'
-                            : 'bg-gradient-to-r from-medical-teal to-medical-blue hover:opacity-90'}`}
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                </button>
-            </div>
-
-            {/* Helper text */}
-            <p className="text-xs text-slate-500 mt-2 text-center">
-                Press <kbd className="px-1 py-0.5 bg-slate-700 rounded">Enter</kbd> to send •
-                <kbd className="px-1 py-0.5 bg-slate-700 rounded ml-1">Shift + Enter</kbd> for new line
-            </p>
+            {/* Legacy input area removed - using enhanced version above */}
         </div>
     )
 }
