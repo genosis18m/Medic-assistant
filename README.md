@@ -22,6 +22,19 @@ An AI-powered medical appointment booking and reporting system using **FastAPI**
 - **PDF Reports**: Generate downloadable patient reports
 - **Dashboard View**: Visual stats and quick actions
 
+## 🔐 Login Credentials
+
+### Doctor Access
+| Email | Password | Notes |
+|-------|----------|-------|
+| `doctor12345@gmail.com` | `doctor` | General doctor access |
+| `adonimohit@gmail.com` | (your password) | Admin doctor access |
+
+### Patient Access
+Any email can access patient mode.
+
+> **Note**: Login is via Clerk authentication. Create an account with the doctor emails above to access doctor features.
+
 ## 🔧 13 MCP Tools
 
 ### Patient Tools (4)

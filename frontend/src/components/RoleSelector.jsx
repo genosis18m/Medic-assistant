@@ -1,12 +1,12 @@
 import { useState } from 'react'
 
-const DOCTOR_EMAIL = 'adonimohit@gmail.com'
+const DOCTOR_EMAILS = ['adonimohit@gmail.com', 'doctor12345@gmail.com']
 
 function RoleSelector({ onSelectRole, currentRole, userEmail }) {
     const [hoveredRole, setHoveredRole] = useState(null)
 
     // Check if user can access doctor mode
-    const canAccessDoctor = userEmail === DOCTOR_EMAIL
+    const canAccessDoctor = DOCTOR_EMAILS.includes(userEmail)
 
     const roles = [
         {
