@@ -4,3 +4,10 @@ __pycache__/
 *.db
 .env
 node_modules/
+
+# Google Calendar credentials
+backend/credentials.json
+backend/token.pickle
+
+# Frontend build
+frontend/dist/
