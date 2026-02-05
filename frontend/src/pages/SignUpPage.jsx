@@ -27,13 +27,10 @@ function SignUpPage() {
                     routing="path"
                     path="/sign-up"
                     signInUrl="/sign-in"
-                    additionalOAuthScopes={{
-                        google: ['profile', 'email']
-                    }}
                 />
 
                 <p className="text-center text-slate-400 text-sm mt-4">
-                    ⚠️ Phone number required for WhatsApp notifications
+                    💡 Add phone number later for WhatsApp notifications
                 </p>
             </div>
         </div>

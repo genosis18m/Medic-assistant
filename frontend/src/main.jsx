@@ -19,11 +19,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     unsafe_disableDevelopmentModeWarnings: true,
                 }
             }}
-            signUpOptions={{
-                unsafeMetadata: {
-                    phoneNumberRequired: true
-                }
-            }}
         >
             <App />
         </ClerkProvider>
