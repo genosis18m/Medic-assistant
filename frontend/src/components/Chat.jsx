@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import ReactMarkdown from 'react-markdown'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -114,9 +113,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
                                     : 'bg-white/10 text-white border border-white/20'
                                 }`}
                         >
-                            <ReactMarkdown className="prose prose-invert max-w-none">
-                                {msg.content}
-                            </ReactMarkdown>
+                            <p className="whitespace-pre-wrap">{msg.content}</p>
                         </div>
                     </div>
                 ))}
