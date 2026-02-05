@@ -8,6 +8,8 @@ import SignUpPage from './pages/SignUpPage'
 import PatientPage from './pages/PatientPage'
 import DoctorDashboardPage from './pages/DoctorDashboardPage'
 import DoctorChatPage from './pages/DoctorChatPage'
+import DoctorAppointmentsPage from './pages/DoctorAppointmentsPage'
+import DoctorReportsPage from './pages/DoctorReportsPage'
 
 function MainApp() {
     const { user } = useUser()
@@ -148,6 +150,8 @@ function App() {
                     <Route path="/" element={<DoctorDashboardPage doctorId={simpleDoctorData.doctorId} userEmail={simpleDoctorData.email} />} />
                     <Route path="/doctor" element={<DoctorDashboardPage doctorId={simpleDoctorData.doctorId} userEmail={simpleDoctorData.email} />} />
                     <Route path="/doctor/chat" element={<SimpleDoctorChatPage doctorData={simpleDoctorData} />} />
+                    <Route path="/doctor/appointments" element={<DoctorAppointmentsPage doctorId={simpleDoctorData.doctorId} />} />
+                    <Route path="/doctor/reports" element={<DoctorReportsPage doctorId={simpleDoctorData.doctorId} />} />
                     <Route path="*" element={<Navigate to="/doctor" replace />} />
                 </Routes>
             </BrowserRouter>
@@ -198,6 +202,8 @@ function MainAppRouter() {
                 <>
                     <Route path="/doctor" element={<DoctorDashboardPage doctorId={doctorId} userEmail={userEmail} />} />
                     <Route path="/doctor/chat" element={<DoctorChatPage />} />
+                    <Route path="/doctor/appointments" element={<DoctorAppointmentsPage doctorId={doctorId} />} />
+                    <Route path="/doctor/reports" element={<DoctorReportsPage doctorId={doctorId} />} />
                 </>
             )}
             <Route path="*" element={<Navigate to="/" replace />} />
