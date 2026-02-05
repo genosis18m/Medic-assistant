@@ -17,7 +17,8 @@ from tools.doctor_reports import (
     get_appointment_stats,
     get_patient_stats,
     generate_summary_report,
-    send_slack_notification
+    send_slack_notification,
+    send_report_to_whatsapp
 )
 
 load_dotenv()
@@ -252,6 +253,32 @@ DOCTOR_TOOLS = PATIENT_TOOLS + [
                 "required": ["doctor_id"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "send_report_to_whatsapp",
+            "description": "Generate and send a report to the doctor via WhatsApp. Use when doctor asks to send report to WhatsApp or their phone.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "doctor_id": {
+                        "type": "integer",
+                        "description": "ID of the doctor"
+                    },
+                    "report_type": {
+                        "type": "string",
+                        "description": "Type of report: 'daily' or 'weekly'",
+                        "enum": ["daily", "weekly"]
+                    },
+                    "date_str": {
+                        "type": "string",
+                        "description": "Specific date for the report in YYYY-MM-DD format"
+                    }
+                },
+                "required": ["doctor_id"]
+            }
+        }
     }
 ]
 
@@ -266,7 +293,8 @@ TOOL_FUNCTIONS = {
     "get_appointment_stats": get_appointment_stats,
     "get_patient_stats": get_patient_stats,
     "generate_summary_report": generate_summary_report,
-    "send_slack_notification": send_slack_notification
+    "send_slack_notification": send_slack_notification,
+    "send_report_to_whatsapp": send_report_to_whatsapp
 }
 
 # ============================================================================
