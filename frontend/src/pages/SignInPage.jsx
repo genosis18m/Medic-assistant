@@ -90,7 +90,7 @@ function SignInPage() {
                                     footerActionLink: 'text-emerald-300 hover:text-emerald-100'
                                 }
                             }}
-                            redirectUrl="/patient"
+                            forceRedirectUrl="/patient"
                             signUpUrl="/sign-up"
                         />
                     )}
