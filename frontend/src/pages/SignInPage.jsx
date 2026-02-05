@@ -20,14 +20,11 @@ function SignInPage() {
             <div className="max-w-md w-full">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white mb-4 shadow-lg shadow-emerald-500/30">
-                        <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                        </svg>
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                        <img src="/logo.svg" alt="Medical Assistant" className="w-16 h-16" />
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Medical Assistant</h1>
-                    <p className="text-emerald-100/80">Sign in to continue</p>
+                    <h1 className="text-4xl font-bold text-white mb-2">Medical Assistant</h1>
+                    <p className="text-emerald-100/80 text-lg">AI-Powered Healthcare Platform</p>
                 </div>
 
                 {/* Toggle between Clerk and Doctor Login */}
@@ -35,8 +32,8 @@ function SignInPage() {
                     <button
                         onClick={() => setIsDoctorMode(false)}
                         className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${!isDoctorMode
-                                ? 'bg-white text-emerald-900'
-                                : 'bg-white/10 text-white hover:bg-white/20'
+                            ? 'bg-white text-emerald-900'
+                            : 'bg-white/10 text-white hover:bg-white/20'
                             }`}
                     >
                         Patient Login
@@ -44,8 +41,8 @@ function SignInPage() {
                     <button
                         onClick={() => setIsDoctorMode(true)}
                         className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${isDoctorMode
-                                ? 'bg-white text-emerald-900'
-                                : 'bg-white/10 text-white hover:bg-white/20'
+                            ? 'bg-white text-emerald-900'
+                            : 'bg-white/10 text-white hover:bg-white/20'
                             }`}
                     >
                         👨‍⚕️ Doctor Login
