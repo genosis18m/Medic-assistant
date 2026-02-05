@@ -187,10 +187,12 @@ function MainAppRouter() {
 
     return (
         <Routes>
-            <Route path="/" element={<RoleSelector onSelectRole={(role) => {
-                if (role === 'patient') window.location.href = '/patient'
-                else window.location.href = '/doctor'
-            }} currentRole={null} userEmail={userEmail} />} />
+            {/* Default route - auto redirect based on email */}
+            <Route path="/" element={
+                canAccessDoctor
+                    ? <Navigate to="/doctor" replace />
+                    : <Navigate to="/patient" replace />
+            } />
             <Route path="/patient" element={<PatientPage />} />
             {canAccessDoctor && (
                 <>
