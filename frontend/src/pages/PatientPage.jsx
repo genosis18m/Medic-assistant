@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import Chat from '../components/Chat'
 import { UserButton, useUser } from '@clerk/clerk-react'
 
@@ -49,19 +50,28 @@ function PatientPage() {
                     <p className="text-white/60 text-sm">No appointments found</p>
                 ) : (
                     <div className="space-y-2">
-                        {appointments.map(apt => (
-                            <div key={apt.id} className="bg-white/5 p-3 rounded-lg border border-white/10">
-                                <p className="text-white font-medium text-sm">{apt.doctor_name || `Doctor ID ${apt.doctor_id}`}</p>
-                                <p className="text-teal-300 text-xs">{apt.appointment_date} at {apt.appointment_time}</p>
-                                <p className="text-white/60 text-xs mt-1">{apt.reason}</p>
-                                <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs ${apt.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
-                                        apt.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
-                                            'bg-yellow-500/20 text-yellow-300'
-                                    }`}>
-                                    {apt.status}
-                                </span>
-                            </div>
-                        ))}
+                        <AnimatePresence mode="popLayout">
+                            {appointments.map((apt, index) => (
+                                <motion.div
+                                    key={apt.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    className="bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
+                                >
+                                    <p className="text-white font-medium text-sm">{apt.doctor_name || `Doctor ID ${apt.doctor_id}`}</p>
+                                    <p className="text-teal-300 text-xs">{apt.appointment_date} at {apt.appointment_time}</p>
+                                    <p className="text-white/60 text-xs mt-1">{apt.reason}</p>
+                                    <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs ${apt.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
+                                            apt.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
+                                                'bg-yellow-500/20 text-yellow-300'
+                                        }`}>
+                                        {apt.status}
+                                    </span>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
                 )}
             </div>

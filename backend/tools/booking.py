@@ -313,15 +313,17 @@ def list_appointments(
             doctor = session.get(Doctor, apt.doctor_id)
             result.append({
                 "id": apt.id,
-                "doctor": doctor.name if doctor else "Unknown",
+                "doctor_id": apt.doctor_id,
+                "doctor_name": doctor.name if doctor else "Unknown",
                 "doctor_specialization": doctor.specialization.value if doctor else "unknown",
-                "patient": apt.patient_name,
+                "patient_name": apt.patient_name,
                 "patient_email": apt.patient_email,
-                "date": apt.appointment_date.isoformat(),
-                "time": apt.appointment_time.strftime("%H:%M"),
+                "appointment_date": apt.appointment_date.isoformat(),
+                "appointment_time": apt.appointment_time.strftime("%H:%M"),
                 "reason": apt.reason,
                 "symptoms": apt.symptoms,
-                "status": apt.status.value
+                "status": apt.status.value,
+                "email_sent": apt.email_sent if hasattr(apt, 'email_sent') else False
             })
         
         return {
