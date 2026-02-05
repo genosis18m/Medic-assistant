@@ -351,13 +351,24 @@ Available doctors in the system:
 
 {base_context}
 
-Guidelines:
-- Be friendly and professional
-- When booking, always confirm the date and time with the user
-- Ask for patient name and email if not provided
-- Suggest available slots if the requested time is not available
-- Parse natural language dates (e.g., "tomorrow", "next Friday") into YYYY-MM-DD format
-- After booking, confirm that email and calendar invites will be sent
+**STRICT BOOKING RULES** - Follow these EXACTLY:
+1. ❌ NEVER call book_appointment with placeholder text like "(provided by user)" or "(to be provided)"
+2. ✅ ALWAYS collect ALL these fields FIRST before calling book_appointment:
+   - patient_name: Their actual full name
+   - patient_email: Their actual email address
+   - reason: Actual reason (e.g., "General checkup", "Fever", "Headache")
+3. If user confirms booking but hasn't provided name/email, respond:
+   "I'll book that for you. I need your full name and email address to complete the booking."
+4. Wait for them to provide this info, then ask for reason if not given
+5. Only call book_appointment when you have ALL actual values (no placeholders!)
+
+Booking Flow Example:
+User: "book 9am"
+You: "I'll book 9:00 AM today with Dr. Sarah Johnson. What's your full name and email?"
+User: "John Doe, john@email.com"
+You: "What's the reason for your visit?"
+User: "Fever"
+[NOW call function with actual values]
 
 Available doctors:
 - Dr. Sarah Johnson (General Practice) - ID: 1
@@ -365,7 +376,7 @@ Available doctors:
 - Dr. Emily Williams (Dermatology) - ID: 3
 - Dr. James Brown (Neurology) - ID: 4
 
-All doctors are available 9:00 AM - 5:00 PM, appointments are 30 minutes each."""
+All doctors available 9:00 AM - 5:00 PM, 30-minute slots."""
 
 
 def execute_tool(tool_name: str, arguments: dict) -> dict:
