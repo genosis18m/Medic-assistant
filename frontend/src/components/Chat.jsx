@@ -2,17 +2,32 @@ import { useState, useRef, useEffect } from 'react'
 
 const API_URL = 'http://localhost:8000'
 
-function Chat() {
-    const [messages, setMessages] = useState([
-        {
-            role: 'assistant',
-            content: "👋 Hello! I'm your Medical Appointment Assistant. I can help you:\n\n• Check doctor availability\n• Book appointments\n• Cancel existing appointments\n• View your scheduled appointments\n\nHow can I help you today?"
-        }
-    ])
+function Chat({ role = 'patient', onRoleChange }) {
+    const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [sessionId, setSessionId] = useState(null)
     const messagesEndRef = useRef(null)
+
+    // Role-specific welcome messages
+    const getWelcomeMessage = () => {
+        if (role === 'doctor') {
+            return {
+                role: 'assistant',
+                content: "👨‍⚕️ Welcome, Doctor! I can help you with:\n\n• View today's appointment stats\n• Check patient records by symptoms\n• Generate daily/weekly reports\n• Send summaries to Slack\n\nWhat would you like to know?"
+            }
+        }
+        return {
+            role: 'assistant',
+            content: "👋 Hello! I'm your Medical Appointment Assistant. I can help you:\n\n• Check doctor availability\n• Book appointments (with email confirmation)\n• Cancel existing appointments\n• View your scheduled appointments\n\nHow can I help you today?"
+        }
+    }
+
+    // Reset messages when role changes
+    useEffect(() => {
+        setMessages([getWelcomeMessage()])
+        setSessionId(null)
+    }, [role])
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -39,7 +54,8 @@ function Chat() {
                 },
                 body: JSON.stringify({
                     message: userMessage,
-                    session_id: sessionId
+                    session_id: sessionId,
+                    role: role
                 })
             })
 
@@ -54,19 +70,27 @@ function Chat() {
             console.error('Chat error:', error)
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: '❌ Sorry, I encountered an error. Please make sure the backend server is running on port 8000 and you have set your OPENAI_API_KEY.'
+                content: '❌ Sorry, I encountered an error. Please make sure the backend server is running on port 8000.'
             }])
         } finally {
             setIsLoading(false)
         }
     }
 
-    const quickActions = [
-        "Show me available doctors",
-        "I need a cardiology appointment",
-        "What times are available tomorrow?",
-        "Book an appointment"
-    ]
+    // Role-specific quick actions
+    const quickActions = role === 'doctor'
+        ? [
+            "How many patients today?",
+            "Show me appointments with fever",
+            "Generate my daily report",
+            "Send summary to Slack"
+        ]
+        : [
+            "Show me available doctors",
+            "I need a cardiology appointment",
+            "What times are available tomorrow?",
+            "Book an appointment"
+        ]
 
     return (
         <div className="flex-1 max-w-4xl mx-auto w-full flex flex-col p-4">
@@ -79,8 +103,10 @@ function Chat() {
                     >
                         <div
                             className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                                    ? 'bg-gradient-to-r from-medical-teal to-medical-blue text-white'
-                                    : 'bg-slate-800/80 text-slate-100 border border-slate-700/50 backdrop-blur-sm'
+                                ? role === 'doctor'
+                                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
+                                    : 'bg-gradient-to-r from-medical-teal to-medical-blue text-white'
+                                : 'bg-slate-800/80 text-slate-100 border border-slate-700/50 backdrop-blur-sm'
                                 }`}
                         >
                             <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
@@ -93,9 +119,9 @@ function Chat() {
                         <div className="bg-slate-800/80 rounded-2xl px-4 py-3 border border-slate-700/50">
                             <div className="flex items-center gap-2">
                                 <div className="flex gap-1">
-                                    <span className="w-2 h-2 rounded-full bg-medical-teal animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                    <span className="w-2 h-2 rounded-full bg-medical-teal animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                    <span className="w-2 h-2 rounded-full bg-medical-teal animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                    <span className={`w-2 h-2 rounded-full animate-bounce ${role === 'doctor' ? 'bg-purple-500' : 'bg-medical-teal'}`} style={{ animationDelay: '0ms' }}></span>
+                                    <span className={`w-2 h-2 rounded-full animate-bounce ${role === 'doctor' ? 'bg-purple-500' : 'bg-medical-teal'}`} style={{ animationDelay: '150ms' }}></span>
+                                    <span className={`w-2 h-2 rounded-full animate-bounce ${role === 'doctor' ? 'bg-purple-500' : 'bg-medical-teal'}`} style={{ animationDelay: '300ms' }}></span>
                                 </div>
                                 <span className="text-slate-400 text-sm">Thinking...</span>
                             </div>
@@ -113,9 +139,11 @@ function Chat() {
                         <button
                             key={index}
                             onClick={() => setInput(action)}
-                            className="px-3 py-2 text-sm bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 
+                            className={`px-3 py-2 text-sm bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 
                        rounded-xl border border-slate-700/50 transition-all duration-200 
-                       hover:border-medical-teal/50 hover:text-medical-teal"
+                       ${role === 'doctor'
+                                    ? 'hover:border-purple-500/50 hover:text-purple-400'
+                                    : 'hover:border-medical-teal/50 hover:text-medical-teal'}`}
                         >
                             {action}
                         </button>
@@ -129,19 +157,22 @@ function Chat() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type your message..."
+                    placeholder={role === 'doctor' ? "Ask about your patients..." : "Type your message..."}
                     disabled={isLoading}
-                    className="flex-1 px-4 py-3 rounded-xl bg-slate-800/70 border border-slate-700/50 
-                   text-white placeholder-slate-500 focus:outline-none focus:border-medical-teal
-                   focus:ring-2 focus:ring-medical-teal/20 transition-all duration-200"
+                    className={`flex-1 px-4 py-3 rounded-xl bg-slate-800/70 border border-slate-700/50 
+                   text-white placeholder-slate-500 focus:outline-none transition-all duration-200
+                   ${role === 'doctor'
+                            ? 'focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                            : 'focus:border-medical-teal focus:ring-2 focus:ring-medical-teal/20'}`}
                 />
                 <button
                     type="submit"
                     disabled={isLoading || !input.trim()}
-                    className="px-6 py-3 bg-gradient-to-r from-medical-teal to-medical-blue text-white 
-                   rounded-xl font-medium hover:opacity-90 disabled:opacity-50 
-                   disabled:cursor-not-allowed transition-all duration-200
-                   hover:shadow-lg hover:shadow-medical-teal/20"
+                    className={`px-6 py-3 text-white rounded-xl font-medium hover:opacity-90 
+                   disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200
+                   hover:shadow-lg ${role === 'doctor'
+                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-purple-500/20'
+                            : 'bg-gradient-to-r from-medical-teal to-medical-blue hover:shadow-medical-teal/20'}`}
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
