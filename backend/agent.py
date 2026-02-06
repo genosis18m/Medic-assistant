@@ -52,8 +52,7 @@ PATIENT_TOOLS = [
                     },
                     "specialization": {
                         "type": "string",
-                        "description": "Optional: Filter by doctor specialization",
-                        "enum": ["general", "cardiology", "dermatology", "neurology", "orthopedics", "pediatrics"]
+                        "description": "Optional: Filter by doctor specialization (general, cardiology, dermatology, neurology, orthopedics, pediatrics). Leave empty if not filtering."
                     },
                     "doctor_id": {
                         "type": "integer",
