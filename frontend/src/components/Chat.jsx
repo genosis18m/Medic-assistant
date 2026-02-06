@@ -26,18 +26,31 @@ function Chat({ role = 'patient', userId, userEmail }) {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
-    // Parse suggested actions from bot response
+    // Parse suggested actions from bot response - IMPROVED
     const parseSuggestedActions = (content) => {
-        // Look for lists or options in the message
-        if (content.includes('9:00 AM') || content.includes('time')) {
+        const lowerContent = content.toLowerCase()
+
+        // Check for time slots
+        if (lowerContent.includes('time') || lowerContent.includes('9:00 am') || lowerContent.includes('available slots')) {
             return ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM']
         }
-        if (content.toLowerCase().includes('confirm') || content.toLowerCase().includes('yes or no')) {
+
+        // Check for confirmation
+        if (lowerContent.includes('confirm') || lowerContent.includes('yes or no') || lowerContent.includes('correct?')) {
             return ['Yes, confirm', 'No, cancel']
         }
-        if (content.toLowerCase().includes('doctor') && content.includes('Sarah')) {
+
+        // Check for doctor selection - IMPROVED DETECTION
+        if ((lowerContent.includes('doctor') || lowerContent.includes('available doctors')) &&
+            (content.includes('Sarah') || content.includes('Mohit') || content.includes('ID:'))) {
             return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
         }
+
+        // Check for symptoms
+        if (lowerContent.includes('symptom') || lowerContent.includes('issue') || lowerContent.includes('brought you')) {
+            return ['Fever', 'Headache', 'Cough', 'Back Pain', 'Stomach Ache', 'Other']
+        }
+
         return []
     }
 
@@ -80,13 +93,15 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 const actions = parseSuggestedActions(data.response)
                 setSuggestedActions(actions)
             } else {
+                const errorText = await response.text()
+                console.error('API Error:', errorText)
                 throw new Error('Failed to get response')
             }
         } catch (error) {
             console.error('Chat error:', error)
             const errorMessage = {
                 role: 'assistant',
-                content: '❌ Sorry, I encountered an error. Please try again.'
+                content: '❌ Sorry, I encountered an error. The backend might be down. Please check the console and try again.'
             }
             setMessages(prev => [...prev, errorMessage])
         } finally {
@@ -128,7 +143,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
                                     <button
                                         key={idx}
                                         onClick={() => handleQuickAction(action)}
-                                        className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-colors text-sm"
+                                        className="px-4 py-2 bg-teal-600/20 hover:bg-teal-600/40 border border-teal-500/50 text-teal-200 rounded-lg transition-colors text-sm font-medium"
                                     >
                                         {action}
                                     </button>

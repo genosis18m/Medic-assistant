@@ -1,9 +1,37 @@
 import { useUser, UserButton } from '@clerk/clerk-react'
 import { Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import Chat from '../components/Chat'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 function PatientPage() {
     const { user, isLoaded } = useUser()
+    const [appointments, setAppointments] = useState([])
+    const [loading, setLoading] = useState(false)
+
+    // Fetch appointments
+    useEffect(() => {
+        if (user?.primaryEmailAddress?.emailAddress) {
+            fetchAppointments()
+        }
+    }, [user])
+
+    const fetchAppointments = async () => {
+        try {
+            setLoading(true)
+            const email = user?.primaryEmailAddress?.emailAddress
+            const response = await fetch(`${API_URL}/appointments?patient_email=${email}`)
+            if (response.ok) {
+                const data = await response.json()
+                setAppointments(data.appointments || [])
+            }
+        } catch (error) {
+            console.error('Failed to fetch appointments:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     // Loading
     if (!isLoaded) {
@@ -33,7 +61,30 @@ function PatientPage() {
                     </svg>
                     Previous Visits
                 </h2>
-                <p className="text-white/60 text-sm">No appointments yet</p>
+                {loading ? (
+                    <p className="text-white/60 text-sm">Loading...</p>
+                ) : appointments.length === 0 ? (
+                    <p className="text-white/60 text-sm">No appointments yet</p>
+                ) : (
+                    <div className="space-y-2">
+                        {appointments.map((apt) => (
+                            <div
+                                key={apt.id}
+                                className="bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
+                            >
+                                <p className="text-white font-medium text-sm">{apt.doctor_name || `Doctor ID ${apt.doctor_id}`}</p>
+                                <p className="text-teal-300 text-xs">{apt.appointment_date} at {apt.appointment_time}</p>
+                                <p className="text-white/60 text-xs mt-1">{apt.reason}</p>
+                                <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs ${apt.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
+                                        apt.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
+                                            'bg-yellow-500/20 text-yellow-300'
+                                    }`}>
+                                    {apt.status}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Main Content */}
