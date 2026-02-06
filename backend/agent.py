@@ -41,6 +41,18 @@ PATIENT_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "list_doctors",
+            "description": "List all available doctors with their IDs, names, and specializations. Use this when user asks about doctors or when starting the booking process.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "check_availability",
             "description": "Check available appointment slots for doctors on a specific date. Use this when the user asks about available times or wants to see when a doctor is free.",
             "parameters": {

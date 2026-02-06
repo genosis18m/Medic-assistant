@@ -92,70 +92,129 @@ def send_booking_confirmation(
     reason: str = "Medical Consultation"
 ) -> Dict[str, Any]:
     """
-    Send a booking confirmation email to the patient.
+    Send a minimal, professional booking confirmation email.
     """
-    subject = f"✅ Appointment Confirmed - {doctor_name} on {appointment_date}"
+    subject = f"Appointment Confirmed - {appointment_date}"
     
+    # Clean, minimal design with subtle elegance
     html_body = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <style>
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }}
-            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-            .header {{ background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
-            .content {{ background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }}
-            .appointment-card {{ background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 20px 0; }}
-            .detail-row {{ display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }}
-            .detail-label {{ color: #64748b; font-weight: 500; }}
-            .detail-value {{ color: #1e293b; font-weight: 600; }}
-            .footer {{ background: #1e293b; color: #94a3b8; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }}
-            .btn {{ display: inline-block; background: #0d9488; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 20px; }}
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                color: #1a1a1a;
+                background: #f9fafb;
+                margin: 0;
+                padding: 0;
+            }}
+            .email-wrapper {{
+                max-width: 560px;
+                margin: 40px auto;
+                background: white;
+            }}
+            .header {{
+                padding: 32px 40px 24px;
+                border-bottom: 1px solid #e5e7eb;
+            }}
+            .logo {{
+                font-size: 20px;
+                font-weight: 600;
+                color: #0d9488;
+                margin: 0;
+            }}
+            .content {{
+                padding: 32px 40px;
+            }}
+            .greeting {{
+                font-size: 15px;
+                color: #6b7280;
+                margin: 0 0 24px;
+            }}
+            .appointment-box {{
+                background: #f9fafb;
+                border-left: 3px solid #0d9488;
+                padding: 20px 24px;
+                margin: 24px 0;
+            }}
+            .appointment-row {{
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+            }}
+            .label {{
+                color: #6b7280;
+                font-size: 14px;
+            }}
+            .value {{
+                color: #1a1a1a;
+                font-weight: 500;
+                font-size: 14px;
+                text-align: right;
+            }}
+            .note {{
+                font-size: 13px;
+                color: #6b7280;
+                margin: 24px 0 0;
+                padding: 16px;
+                background: #fef9c3;
+                border-radius: 4px;
+            }}
+            .footer {{
+                padding: 24px 40px;
+                border-top: 1px solid #e5e7eb;
+                text-align: center;
+            }}
+            .footer-text {{
+                font-size: 12px;
+                color: #9ca3af;
+                margin: 4px 0;
+            }}
         </style>
     </head>
     <body>
-        <div class="container">
+        <div class="email-wrapper">
             <div class="header">
-                <h1>🏥 Appointment Confirmed!</h1>
-                <p>Your medical appointment has been scheduled</p>
+                <h1 class="logo">Medical Assistant</h1>
             </div>
+            
             <div class="content">
-                <p>Dear <strong>{patient_name}</strong>,</p>
-                <p>Your appointment has been successfully booked. Here are the details:</p>
+                <p class="greeting">Hello {patient_name},</p>
+                <p style="margin: 0 0 16px; font-size: 15px; color: #1a1a1a;">Your appointment has been confirmed.</p>
                 
-                <div class="appointment-card">
-                    <div class="detail-row">
-                        <span class="detail-label">📋 Appointment ID</span>
-                        <span class="detail-value">#{appointment_id}</span>
+                <div class="appointment-box">
+                    <div class="appointment-row">
+                        <span class="label">Doctor</span>
+                        <span class="value">{doctor_name}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">👨‍⚕️ Doctor</span>
-                        <span class="detail-value">{doctor_name}</span>
+                    <div class="appointment-row">
+                        <span class="label">Specialization</span>
+                        <span class="value">{doctor_specialization.title()}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">🏷️ Specialization</span>
-                        <span class="detail-value">{doctor_specialization.title()}</span>
+                    <div class="appointment-row">
+                        <span class="label">Date</span>
+                        <span class="value">{appointment_date}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">📅 Date</span>
-                        <span class="detail-value">{appointment_date}</span>
+                    <div class="appointment-row">
+                        <span class="label">Time</span>
+                        <span class="value">{appointment_time}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">⏰ Time</span>
-                        <span class="detail-value">{appointment_time}</span>
-                    </div>
-                    <div class="detail-row" style="border-bottom: none;">
-                        <span class="detail-label">📝 Reason</span>
-                        <span class="detail-value">{reason}</span>
+                    <div class="appointment-row">
+                        <span class="label">Reference</span>
+                        <span class="value">#{appointment_id}</span>
                     </div>
                 </div>
                 
-                <p><strong>📍 Important:</strong> Please arrive 10 minutes before your scheduled time.</p>
-                <p>If you need to cancel or reschedule, please contact us at least 24 hours in advance.</p>
+                <p class="note">
+                    Please arrive 10 minutes early. To cancel or reschedule, contact us at least 24 hours in advance.
+                </p>
             </div>
+            
             <div class="footer">
-                <p>Medical Assistant - AI-Powered Healthcare</p>
-                <p>This is an automated message. Please do not reply directly to this email.</p>
+                <p class="footer-text">Medical Assistant · AI-Powered Healthcare</p>
+                <p class="footer-text">This is an automated message</p>
             </div>
         </div>
     </body>
@@ -163,25 +222,22 @@ def send_booking_confirmation(
     """
     
     text_body = f"""
-    Appointment Confirmed!
+    Appointment Confirmed
     
-    Dear {patient_name},
+    Hello {patient_name},
     
-    Your appointment has been successfully booked.
+    Your appointment has been confirmed.
     
-    Details:
-    - Appointment ID: #{appointment_id}
-    - Doctor: {doctor_name}
-    - Specialization: {doctor_specialization}
-    - Date: {appointment_date}
-    - Time: {appointment_time}
-    - Reason: {reason}
+    Doctor: {doctor_name}
+    Specialization: {doctor_specialization}
+    Date: {appointment_date}
+    Time: {appointment_time}
+    Reference: #{appointment_id}
     
-    Please arrive 10 minutes before your scheduled time.
+    Please arrive 10 minutes early.
+    To cancel or reschedule, contact us at least 24 hours in advance.
     
-    If you need to cancel or reschedule, please contact us at least 24 hours in advance.
-    
-    - Medical Assistant
+    Medical Assistant
     """
     
     return send_email(patient_email, subject, html_body, text_body)
@@ -196,43 +252,76 @@ def send_cancellation_notice(
     appointment_id: int
 ) -> Dict[str, Any]:
     """
-    Send a cancellation confirmation email to the patient.
+    Send a minimal cancellation confirmation email.
     """
-    subject = f"❌ Appointment Cancelled - #{appointment_id}"
+    subject = f"Appointment Cancelled - {appointment_date}"
     
     html_body = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <style>
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }}
-            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-            .header {{ background: #dc2626; color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
-            .content {{ background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }}
-            .footer {{ background: #1e293b; color: #94a3b8; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }}
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                color: #1a1a1a;
+                background: #f9fafb;
+                margin: 0;
+                padding: 0;
+            }}
+            .email-wrapper {{
+                max-width: 560px;
+                margin: 40px auto;
+                background: white;
+            }}
+            .header {{
+                padding: 32px 40px 24px;
+                border-bottom: 1px solid #e5e7eb;
+            }}
+            .logo {{
+                font-size: 20px;
+                font-weight: 600;
+                color: #dc2626;
+                margin: 0;
+            }}
+            .content {{
+                padding: 32px 40px;
+            }}
+            .footer {{
+                padding: 24px 40px;
+                border-top: 1px solid #e5e7eb;
+                text-align: center;
+            }}
+            .footer-text {{
+                font-size: 12px;
+                color: #9ca3af;
+                margin: 4px 0;
+            }}
         </style>
     </head>
     <body>
-        <div class="container">
+        <div class="email-wrapper">
             <div class="header">
-                <h1>Appointment Cancelled</h1>
+                <h1 class="logo">Appointment Cancelled</h1>
             </div>
+            
             <div class="content">
-                <p>Dear <strong>{patient_name}</strong>,</p>
+                <p>Hello {patient_name},</p>
                 <p>Your appointment has been cancelled as requested.</p>
                 
-                <p><strong>Cancelled Appointment:</strong></p>
+                <p><strong>Cancelled:</strong></p>
                 <ul>
-                    <li>Appointment ID: #{appointment_id}</li>
                     <li>Doctor: {doctor_name}</li>
                     <li>Date: {appointment_date}</li>
                     <li>Time: {appointment_time}</li>
+                    <li>Reference: #{appointment_id}</li>
                 </ul>
                 
-                <p>If you would like to reschedule, please book a new appointment through our system.</p>
+                <p>You can book a new appointment anytime through our system.</p>
             </div>
+            
             <div class="footer">
-                <p>Medical Assistant - AI-Powered Healthcare</p>
+                <p class="footer-text">Medical Assistant</p>
             </div>
         </div>
     </body>
