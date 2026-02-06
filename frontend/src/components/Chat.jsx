@@ -5,6 +5,24 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 // Initial welcome quick actions
 const INITIAL_ACTIONS = ['Book Appointment', 'Check Availability', 'View My Appointments', 'Cancel Appointment']
 
+// Get next 2 days for date selection
+const getNextTwoDays = () => {
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const formatDate = (date) => {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`
+    }
+
+    return [
+        { label: `Today (${formatDate(today)})`, value: today.toISOString().split('T')[0] },
+        { label: `Tomorrow (${formatDate(tomorrow)})`, value: tomorrow.toISOString().split('T')[0] }
+    ]
+}
+
 function Chat({ role = 'patient', userId, userEmail }) {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
@@ -22,7 +40,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 : "👋 Hello! I'm your Medical Assistant. I can help you:\n\n• Book appointments\n• Check availability\n• Cancel appointments\n• View your schedule\n\nHow can I help you today?"
         }
         setMessages([welcomeMsg])
-        setSuggestedActions(INITIAL_ACTIONS) // Show initial actions
+        setSuggestedActions(INITIAL_ACTIONS)
     }, [role])
 
     // Auto-scroll to bottom
@@ -30,39 +48,76 @@ function Chat({ role = 'patient', userId, userEmail }) {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
-    // Parse suggested actions from bot response - AGGRESSIVE DETECTION
+    // Extract time slots from text (e.g., "9:00 AM", "10:30", "4:00 PM")
+    const extractTimeSlots = (text) => {
+        const timeRegex = /\b(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)?\b/g
+        const matches = [...text.matchAll(timeRegex)]
+        const uniqueTimes = new Set()
+
+        matches.forEach(match => {
+            let [, hour, minute, meridiem] = match
+            hour = parseInt(hour)
+            minute = parseInt(minute)
+
+            // Convert to 12-hour format with AM/PM if not present
+            if (!meridiem) {
+                meridiem = hour >= 12 ? 'PM' : 'AM'
+                if (hour > 12) hour -= 12
+                if (hour === 0) hour = 12
+            }
+
+            uniqueTimes.add(`${hour}:${minute.padStart(2, '0')} ${meridiem.toUpperCase()}`)
+        })
+
+        return Array.from(uniqueTimes)
+    }
+
+    // Parse suggested actions from bot response - SMART DETECTION
     const parseSuggestedActions = (content) => {
         const lowerContent = content.toLowerCase()
 
-        // Check for doctor selection questions - HIGHEST PRIORITY
-        if (lowerContent.includes('which doctor') ||
-            lowerContent.includes('what doctor') ||
-            lowerContent.includes('see a doctor') ||
-            lowerContent.includes('which one') ||
+        // Check for date selection
+        if (lowerContent.includes('which date') || lowerContent.includes('what date') ||
+            (lowerContent.includes('date') && lowerContent.includes('appointment'))) {
+            const dates = getNextTwoDays()
+            return dates.map(d => d.label)
+        }
+
+        // Check for time slots - EXTRACT FROM RESPONSE
+        if (lowerContent.includes('available slots') || lowerContent.includes('available times') ||
+            lowerContent.includes('what time') || lowerContent.includes('time works')) {
+            const extractedSlots = extractTimeSlots(content)
+            if (extractedSlots.length > 0) {
+                return extractedSlots
+            }
+            // Fallback to default times if extraction fails
+            return ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM']
+        }
+
+        // Check for doctor selection questions
+        if (lowerContent.includes('which doctor') || lowerContent.includes('what doctor') ||
+            lowerContent.includes('see a doctor') || lowerContent.includes('which one') ||
             lowerContent.includes("i'd be happy") ||
-            (lowerContent.includes('doctor') && (lowerContent.includes('like to see') || lowerContent.includes('want to see'))) ||
+            (lowerContent.includes('doctor') && (lowerContent.includes('like to see') || lowerContent.includes('want to see') || lowerContent.includes('book with'))) ||
             (lowerContent.includes('book') && lowerContent.includes('doctor'))) {
             return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
         }
 
-        // Check for time slots
-        if (lowerContent.includes('time') || lowerContent.includes('9:00 am') || lowerContent.includes('available slots') || lowerContent.includes('what time')) {
-            return ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM']
-        }
-
         // Check for confirmation
-        if (lowerContent.includes('confirm') || lowerContent.includes('yes or no') || lowerContent.includes('correct?')) {
+        if (lowerContent.includes('confirm') || lowerContent.includes('is this correct') ||
+            lowerContent.includes('yes or no')) {
             return ['Yes, confirm', 'No, cancel']
         }
 
-        // Check for doctor list (fallback for when AI lists doctors)
+        // Check for doctor list (fallback)
         if ((lowerContent.includes('doctor') || lowerContent.includes('available')) &&
             (content.includes('Sarah') || content.includes('Mohit') || content.includes('ID:'))) {
             return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
         }
 
         // Check for symptoms
-        if (lowerContent.includes('symptom') || lowerContent.includes('issue') || lowerContent.includes('brought you') || lowerContent.includes('reason for visit')) {
+        if (lowerContent.includes('symptom') || lowerContent.includes('issue') ||
+            lowerContent.includes('brought you') || lowerContent.includes('reason for visit')) {
             return ['Fever', 'Headache', 'Cough', 'Back Pain', 'Stomach Ache', 'Other']
         }
 
