@@ -26,6 +26,11 @@ from tools.patient_history import (
     add_prescription,
     generate_patient_report
 )
+# Import list_doctors from main
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+from main import list_doctors
 
 load_dotenv()
 
@@ -302,6 +307,7 @@ DOCTOR_TOOLS = PATIENT_TOOLS + [
 # Map function names to actual functions
 TOOL_FUNCTIONS = {
     # Patient tools
+    "list_doctors": list_doctors,
     "check_availability": check_availability,
     "book_appointment": book_appointment,
     "cancel_appointment": cancel_appointment,
