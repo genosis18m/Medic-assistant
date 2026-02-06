@@ -325,7 +325,7 @@ TOOL_FUNCTIONS = {
 # SYSTEM PROMPTS
 # ============================================================================
 
-def get_system_prompt(role: str = "patient") -> str:
+def get_system_prompt(role: str = "patient", context: str = "") -> str:
     """Get role-appropriate system prompt with current date context."""
     today = date.today()
     current_time = datetime.now().strftime("%H:%M")
@@ -333,6 +333,7 @@ def get_system_prompt(role: str = "patient") -> str:
     base_context = f"""Current Date: {today.strftime('%A, %B %d, %Y')}
 Current Time: {current_time}
 Today's date in YYYY-MM-DD format: {today.isoformat()}
+{context}
 
 Important date references:
 - Today: {today.isoformat()}
@@ -341,8 +342,11 @@ Important date references:
 """
     
     if role == "doctor":
-        return f"""You are an intelligent medical assistant helping doctors manage their practice. You can:
+        return f"""You are an intelligent medical assistant helping doctors manage their practice. 
 
+CRITICAL: You are integrating with a function calling API. You must use the native 'tool_calls' feature for any actions. Do not output text descriptions of functions or XML tags. Use strictly valid JSON for arguments.
+
+You can:
 1. **View Appointment Statistics**: Answer questions like "how many patients today?", "appointments this week"
 2. **Query Patient Data**: Find patients by symptoms or diagnosis
 3. **Generate Reports**: Create daily/weekly summary reports
@@ -352,21 +356,24 @@ Important date references:
 {base_context}
 
 Guidelines:
-- When asked about appointment counts, use get_appointment_stats
+- **CRITICAL**: For ALL tool calls requiring `doctor_id` (like `get_appointment_stats`, `generate_summary_report`, `send_slack_notification`), **YOU MUST USE THE ID FROM THE CONTEXT ABOVE** (e.g., if context says "assisting Dr. Mohit Adoni (ID 5)", use `doctor_id=5`).
+- Never default to ID 1 or Dr. Sarah Johnson unless the user specifically asks about her.
+- When asked about "my schedule", "my appointments", or "what is tomorrow's schedule", ALWAYS use `generate_summary_report` or `get_appointment_stats` for the CURRENT Doctor ID.
+- DO NOT use `check_availability` for doctor queries about their own schedule (that is for booking new patients).
 - For patient queries by symptoms (e.g., "patients with fever"), use get_patient_stats
-- For summary reports, use generate_summary_report
-- To send Slack notifications, use send_slack_notification with the doctor's ID
 - Be concise and data-focused in responses
-- Present statistics clearly and professionally
 
 Available doctors in the system:
 - ID 1: Dr. Sarah Johnson (General)
 - ID 2: Dr. Michael Chen (Cardiology)
 - ID 3: Dr. Emily Williams (Dermatology)
-- ID 4: Dr. James Brown (Neurology)"""
+- ID 4: Dr. James Brown (Neurology)
+- ID 5: Dr. Mohit Adoni (General)"""
     
     else:  # patient
         return f"""You are a friendly medical appointment assistant. Follow this EXACT flow with emoji formatting:
+
+CRITICAL: You are integrating with a function calling API. You must use the native 'tool_calls' feature for any actions. Do not output text descriptions of functions or XML tags. Use strictly valid JSON for arguments.
 
 {base_context}
 
@@ -418,7 +425,18 @@ Then: "🎉 **Appointment Confirmed!**\n\nYour appointment is booked with [Docto
 - Ask for DATE BEFORE checking availability
 - Never skip doctor or date selection
 - One question at a time
+- One question at a time
 - Wait for answer before proceeding
+- **MISSING DATA CHECK**: BEFORE calling `book_appointment`, you MUST have collected: Name, Email, and Reason. 
+  - If Name is missing -> Ask "What is your full name?"
+  - If Email is missing -> Ask "What is your email address?"
+  - If Reason is missing -> Ask "What is the reason for the visit?"
+  - NEVER inventing or guessing these details.
+- **TIME FORMATS**: If user says "10:30 A", interpret as "10:30" (AM). If "2 P", interpret as "14:00". Always normalize times to HH:MM (24-hour) for tool calls.
+- **SUGGESTIONS**: At the very end of your response (after all emojis and text), you MUST provide 2-4 suggested short user replies in a hidden block like this: 
+  `[[SUGGESTIONS: Option 1, Option 2, Option 3]]`
+  These should be the most logical next steps for the user.
+  Example: `[[SUGGESTIONS: Tomorrow, Next Monday, Check Availability]]`
 
 Doctor IDs: Mohit Adoni=5, Sarah Johnson=1, Michael Chen=2, Emily Williams=3, James Brown=4"""
 
@@ -438,7 +456,8 @@ def execute_tool(tool_name: str, arguments: dict) -> dict:
 def chat(
     user_message: str,
     conversation_history: Optional[list] = None,
-    role: str = "patient"
+    role: str = "patient",
+    user_context: str = ""
 ) -> tuple[str, list]:
     """
     Process a user message through the agentic loop.
@@ -447,6 +466,7 @@ def chat(
         user_message: The user's input message
         conversation_history: Optional list of previous messages
         role: User role - "patient" or "doctor"
+        user_context: Optional context string (e.g., "You are Dr. X")
         
     Returns:
         Tuple of (assistant response, updated conversation history)
@@ -461,7 +481,7 @@ def chat(
     if not conversation_history:
         conversation_history.append({
             "role": "system",
-            "content": get_system_prompt(role)
+            "content": get_system_prompt(role, user_context)
         })
     
     # Add user message
@@ -470,6 +490,8 @@ def chat(
         "content": user_message
     })
     
+    suggested_actions = []
+
     try:
         # Call Groq with tools
         response = client.chat.completions.create(
@@ -533,19 +555,122 @@ def chat(
             assistant_message = response.choices[0].message
             
         # Add final response to history
-        final_response = assistant_message.content or ""
+        final_response_content = assistant_message.content or ""
+        
+        # Parse suggestions from response (Format: [[SUGGESTIONS: Option 1, Option 2]])
+        import re
+        suggestion_match = re.search(r'\[\[SUGGESTIONS: (.*?)\]\]', final_response_content, re.DOTALL)
+        if suggestion_match:
+            suggestion_str = suggestion_match.group(1)
+            suggested_actions = [s.strip() for s in suggestion_str.split(',')]
+            # Remove the suggestion block from the user-facing message
+            final_response_content = final_response_content.replace(suggestion_match.group(0), "").strip()
+            
         conversation_history.append({
             "role": "assistant",
-            "content": final_response
+            "content": final_response_content # Store clean content
         })
         
         if tools_used:
              print(f"📊 Tools used: {', '.join(tools_used)}")
              
-        return final_response, conversation_history
+        # Detect if we need special client-side suggestions (e.g. time slots from text)
+        # Fallback if LLM didn't provide them but context implies
+        if not suggested_actions:
+            lower_resp = final_response_content.lower()
+            if "available time slots" in lower_resp and ":" in lower_resp:
+                # Let client regex handle it OR try to parse here
+                 pass 
+
+        return final_response_content, conversation_history, suggested_actions
 
     except Exception as e:
+        # Retry logic for tool use failures (common with Groq/Llama3)
+        error_str = str(e)
+        if "tool_use_failed" in error_str or "400" in error_str:
+            print(f"⚠️ Tool use failed, retrying with correction... Error: {error_str}")
+            try:
+                # Add a system correction message
+                conversation_history.append({
+                    "role": "system",
+                    "content": "Measurements indicate you attempted to use invalid tool syntax (e.g. XML). You MUST use the native 'tool_calls' JSON format. Please try again."
+                })
+                
+                response = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=conversation_history,
+                    tools=tools,
+                    tool_choice="auto"
+                )
+                
+                # Process the retry response (simplified handling)
+                assistant_message = response.choices[0].message
+                
+                if assistant_message.tool_calls:
+                    # Recursive handling would be best, but for now just handle the one layer or text
+                     # Add assistant's tool call request to history
+                    conversation_history.append({
+                        "role": "assistant",
+                        "content": assistant_message.content,
+                        "tool_calls": [
+                            {
+                                "id": tc.id,
+                                "type": "function",
+                                "function": {
+                                    "name": tc.function.name,
+                                    "arguments": tc.function.arguments
+                                }
+                            }
+                            for tc in assistant_message.tool_calls
+                        ]
+                    })
+                    
+                    # Execute each tool call (simplified for retry)
+                    tools_used = []
+                    for tool_call in assistant_message.tool_calls:
+                        function_name = tool_call.function.name
+                        try:
+                            arguments = json.loads(tool_call.function.arguments)
+                        except json.JSONDecodeError:
+                            arguments = {}
+                        
+                        tool_result = execute_tool(function_name, arguments)
+                        tools_used.append(function_name)
+                        
+                        conversation_history.append({
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": function_name,
+                            "content": json.dumps(tool_result)
+                        })
+                    
+                    # Get final text after tool execution
+                    response = client.chat.completions.create(
+                        model="llama-3.1-8b-instant",
+                        messages=conversation_history,
+                        tools=tools,
+                        tool_choice="auto"
+                    )
+                    final_text = response.choices[0].message.content or ""
+                    
+                    # Suggestions extraction for retry path
+                    import re
+                    suggestion_match = re.search(r'\[\[SUGGESTIONS: (.*?)\]\]', final_text, re.DOTALL)
+                    retry_suggestions = []
+                    if suggestion_match:
+                        suggestion_str = suggestion_match.group(1)
+                        retry_suggestions = [s.strip() for s in suggestion_str.split(',')]
+                        final_text = final_text.replace(suggestion_match.group(0), "").strip()
+                    
+                    conversation_history.append({"role": "assistant", "content": final_text})
+                    return final_text, conversation_history, retry_suggestions
+                else:
+                    return assistant_message.content, conversation_history, []
+
+            except Exception as retry_e:
+                print(f"❌ Retry failed: {retry_e}")
+        
         import traceback
         traceback.print_exc()
         error_msg = f"😕 I encountered an internal error: {str(e)}. Please try again."
-        return error_msg, conversation_history
+        return error_msg, conversation_history, []

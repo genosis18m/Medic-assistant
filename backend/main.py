@@ -17,6 +17,9 @@ from typing import Optional, Literal
 
 from database import create_db_and_tables, get_session
 from models import Doctor, Specialization, PromptHistory, UserRole
+from services.email_service import EMAIL_ENABLED
+
+print(f"\n✅ BACKEND STARTUP: Email System Enabled = {EMAIL_ENABLED}\n")
 
 
 # ============================================================================
@@ -30,6 +33,7 @@ class ChatRequest(BaseModel):
     role: Literal["patient", "doctor"] = "patient"
     user_email: Optional[str] = None
     user_id: Optional[str] = None
+    doctor_id: Optional[int] = None  # Override for doctor context switching
 
 
 class ChatResponse(BaseModel):
@@ -37,6 +41,7 @@ class ChatResponse(BaseModel):
     response: str
     session_id: str
     role: str
+    suggested_actions: list[str] = []
 
 
 class DoctorCreate(BaseModel):
@@ -183,11 +188,41 @@ def chat_endpoint(request: ChatRequest) -> ChatResponse:
             "role": request.role
         }
     
+    # Determine user context (especially for doctors)
+    user_context = ""
+    if request.role == "doctor":
+        # Try to find doctor by email or ID
+        with get_session() as session:
+            from sqlmodel import select
+            
+            doctor = None
+            
+            # 1. Check for explicit doctor_id override (Context Switch)
+            if request.doctor_id:
+                doctor = session.get(Doctor, request.doctor_id)
+            
+            # 2. If no override, try email lookup
+            if not doctor and request.user_email:
+                doctor = session.exec(select(Doctor).where(Doctor.email == request.user_email)).first()
+            
+            # 3. Fallback for demo users
+            if not doctor:
+                if request.user_email == 'doctor12345@gmail.com':
+                     # Dr. Sarah Johnson (ID 1)
+                     doctor = session.exec(select(Doctor).where(Doctor.id == 1)).first()
+                elif request.user_email == 'adonimohit@gmail.com':
+                     # Dr. Mohit Adoni (ID 5)
+                     doctor = session.exec(select(Doctor).where(Doctor.id == 5)).first()
+            
+            if doctor:
+                user_context = f"\nSYSTEM CONTEXT: You are assisting {doctor.name} (Doctor ID: {doctor.id}). Specialization: {doctor.specialization.value}."
+    
     try:
-        response, updated_history = chat(
+        response, updated_history, suggested_actions = chat(
             user_message=request.message,
             conversation_history=session_data["history"],
-            role=request.role
+            role=request.role,
+            user_context=user_context
         )
         
         # Save updated session
@@ -211,12 +246,30 @@ def chat_endpoint(request: ChatRequest) -> ChatResponse:
         return ChatResponse(
             response=response,
             session_id=session_id,
-            role=request.role
+            role=request.role,
+            suggested_actions=suggested_actions
         )
         
     except Exception as e:
         print(f"❌ Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/chat/history")
+def get_chat_history(session_id: str) -> dict:
+    """Get conversation history for a session."""
+    if session_id in conversation_sessions:
+        return {
+            "history": conversation_sessions[session_id].get("history", []),
+            "role": conversation_sessions[session_id].get("role", "patient")
+        }
+    
+    # Try to fetch from DB if not in memory (optional retention)
+    from sqlmodel import select
+    with get_session() as session:
+        # This is a simplified fetch - real apps might reconstruct from PromptHistory
+        # For now, return empty if not in active memory
+        return {"history": [], "role": "patient"}
 
 
 @app.get("/doctors")

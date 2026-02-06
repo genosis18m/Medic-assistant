@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import Chat from '../components/Chat'
-import { UserButton } from '@clerk/clerk-react'
+import { UserButton, useUser } from '@clerk/clerk-react'
 
 function DoctorChatPage() {
     const navigate = useNavigate()
+    const { user } = useUser()
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -33,7 +34,7 @@ function DoctorChatPage() {
                 </div>
             </header>
             <main className="flex-1">
-                <Chat role="doctor" />
+                <Chat role="doctor" userId={user?.id} userEmail={user?.primaryEmailAddress?.emailAddress} />
             </main>
         </div>
     )

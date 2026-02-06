@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { UserButton } from '@clerk/clerk-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 function DoctorDashboardPage({ doctorId = 5, userEmail }) {
     const navigate = useNavigate()
+    const location = useLocation()
     const [selectedDoctor, setSelectedDoctor] = useState(doctorId)
     const [appointments, setAppointments] = useState([])
     const [stats, setStats] = useState({ today: 0, thisWeek: 0, total: 0 })
@@ -29,6 +30,7 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
             const response = await fetch(`${API_URL}/appointments?doctor_id=${selectedDoctor}`)
             if (response.ok) {
                 const data = await response.json()
+                console.log("Fetched appointments for doctor", selectedDoctor, ":", data)
                 setAppointments(data.appointments || [])
                 // Calculate stats
                 const today = new Date().toISOString().split('T')[0]
@@ -63,54 +65,116 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
                             <p className="text-purple-100 text-sm">👨‍⚕️ Doctor Dashboard</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+
+                    {/* Navigation Tabs (Spacious74 Radio Buttons) */}
+                    <div className="flex items-center gap-6">
+                        <div className="radio-inputs">
+                            <label className="radio">
+                                <input
+                                    type="radio"
+                                    name="radio"
+                                    defaultChecked={location.pathname === '/doctor/dashboard' || location.pathname === '/doctor'}
+                                    onClick={() => navigate('/doctor/dashboard')}
+                                />
+                                <span className="name">Dashboard</span>
+                            </label>
+                            <label className="radio">
+                                <input
+                                    type="radio"
+                                    name="radio"
+                                    defaultChecked={location.pathname === '/doctor/appointments'}
+                                    onClick={() => navigate('/doctor/appointments')}
+                                />
+                                <span className="name">Appointments</span>
+                            </label>
+                            <label className="radio">
+                                <input
+                                    type="radio"
+                                    name="radio"
+                                    defaultChecked={location.pathname === '/doctor/reports'}
+                                    onClick={() => navigate('/doctor/reports')}
+                                />
+                                <span className="name">Reports</span>
+                            </label>
+                        </div>
+
+                        {/* Special AI Assistant Button */}
                         <button
-                            onClick={() => navigate('/doctor/dashboard')}
-                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors flex items-center gap-2"
+                            className="ai-assistant-btn"
+                            onClick={() => navigate('/chat')}
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            Dashboard
+                            <span>AI Assistant</span>
+                            <div className="star-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
+                                    <defs></defs>
+                                    <g id="Layer_x0020_1">
+                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
+                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div className="star-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
+                                    <defs></defs>
+                                    <g id="Layer_x0020_1">
+                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
+                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div className="star-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
+                                    <defs></defs>
+                                    <g id="Layer_x0020_1">
+                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
+                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div className="star-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
+                                    <defs></defs>
+                                    <g id="Layer_x0020_1">
+                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
+                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div className="star-5">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
+                                    <defs></defs>
+                                    <g id="Layer_x0020_1">
+                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
+                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div className="star-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
+                                    <defs></defs>
+                                    <g id="Layer_x0020_1">
+                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
+                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
+                                    </g>
+                                </svg>
+                            </div>
                         </button>
-                        <button
-                            onClick={() => navigate('/doctor/appointments')}
-                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors flex items-center gap-2"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Appointments
-                        </button>
-                        <button
-                            onClick={() => navigate('/doctor/reports')}
-                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors flex items-center gap-2"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Reports
-                        </button>
-                        <button
-                            onClick={() => navigate('/doctor/chat')}
-                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
-                        >
-                            💬 AI Assistant
-                        </button>
-                        <button
-                            onClick={() => {
-                                localStorage.removeItem('doctorAuth');
-                                localStorage.removeItem('simpleDoctorAuth');
-                                window.location.href = '/sign-in';
-                            }}
-                            className="px-4 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-200 hover:text-white rounded-lg transition-colors flex items-center gap-2 border border-red-400/30"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            Logout
-                        </button>
-                        <UserButton afterSignOutUrl="/sign-in" />
+
+                        <div className="flex items-center gap-3 border-l border-white/20 pl-6">
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem('doctorAuth');
+                                    localStorage.removeItem('simpleDoctorAuth');
+                                    window.location.href = '/sign-in';
+                                }}
+                                className="px-3 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-200 hover:text-white rounded-lg transition-colors flex items-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </button>
+                            <UserButton afterSignOutUrl="/sign-in" />
+                        </div>
                     </div>
                 </div>
             </header>

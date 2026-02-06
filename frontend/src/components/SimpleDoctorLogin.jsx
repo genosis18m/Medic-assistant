@@ -44,6 +44,11 @@ function SimpleDoctorLogin({ onSuccess }) {
     return (
         <div className="w-full max-w-md">
             <div className="bg-white/10 border border-white/20 rounded-2xl p-8 backdrop-blur-sm">
+                <div className="flex justify-center mb-6">
+                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center p-2 backdrop-blur-md shadow-lg">
+                        <img src="/logo.svg" alt="Medical Assistant Logo" className="w-full h-full object-contain" />
+                    </div>
+                </div>
                 <h2 className="text-2xl font-bold text-white mb-6 text-center">Doctor Login</h2>
 
                 <form onSubmit={handleLogin} className="space-y-4">

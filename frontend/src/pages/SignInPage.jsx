@@ -51,26 +51,25 @@ function SignInPage() {
 
                 {/* Show login forms only when signed out */}
                 <SignedOut>
-                    {/* Toggle between Clerk and Doctor Login */}
-                    <div className="flex gap-2 mb-6">
-                        <button
-                            onClick={() => setIsDoctorMode(false)}
-                            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${!isDoctorMode
-                                ? 'bg-white text-emerald-900'
-                                : 'bg-white/10 text-white hover:bg-white/20'
-                                }`}
-                        >
-                            Patient Login
-                        </button>
-                        <button
-                            onClick={() => setIsDoctorMode(true)}
-                            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${isDoctorMode
-                                ? 'bg-white text-emerald-900'
-                                : 'bg-white/10 text-white hover:bg-white/20'
-                                }`}
-                        >
-                            👨‍⚕️ Doctor Login
-                        </button>
+                    {/* Custom Toggle Switch */}
+                    <div className="flex justify-center mb-8">
+                        <div className="customCheckBoxHolder">
+                            <input
+                                type="checkbox"
+                                id="roleSwitch"
+                                className="customCheckBoxInput"
+                                checked={isDoctorMode}
+                                onChange={(e) => setIsDoctorMode(e.target.checked)}
+                            />
+                            <div className="customCheckBoxWrapper flex">
+                                <div className="customCheckBox" onClick={() => setIsDoctorMode(false)}>
+                                    <div className="inner">Patient Login</div>
+                                </div>
+                                <div className="customCheckBox" onClick={() => setIsDoctorMode(true)}>
+                                    <div className="inner">Doctor Login</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Show either Clerk or Simple Doctor Login */}

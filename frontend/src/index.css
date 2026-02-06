@@ -2,86 +2,621 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Optimized Design System */
+/* =========================================
+   🏥 Medical Assistant - Professional Design System
+   ========================================= */
+
 :root {
+  /* Primary Brand - Teal (Trust & Professionalism) */
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f6e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
   --color-teal-500: #14b8a6;
   --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+  --color-teal-800: #115e59;
+  --color-teal-900: #134e4a;
+
+  /* Secondary Brand - Coral (Care & Warmth) */
+  --color-coral-50: #fef2f2;
+  --color-coral-100: #ffe4e6;
+  --color-coral-500: #f43f5e;
+  --color-coral-600: #e11d48;
+
+  /* Gradients */
   --gradient-primary: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+  --gradient-secondary: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%);
+  --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --gradient-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+
+  /* Shadows */
+  --shadow-glow-teal: 0 0 20px rgba(13, 148, 136, 0.3);
+  --shadow-glow-coral: 0 0 20px rgba(225, 29, 72, 0.3);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* Optimized Scrollbar */
+/* Base Styles */
+body {
+  margin: 0;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0f172a; /* Slate 900 */
+  color: #f8fafc;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: rgba(15, 23, 42, 0.5);
-  border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--gradient-primary);
   border-radius: 10px;
+  border: 2px solid rgba(15, 23, 42, 0.5);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2dd4bf;
 }
 
-/* Base */
-body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(13, 148, 136, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(13, 148, 136, 0.5); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Utilities */
 @layer utilities {
-  .glass-effect {
+  .glass-panel {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+/* Custom SearchBox from Uiverse (Adapted for Teal Theme & Responsiveness) */
+.searchBox {
+  display: flex;
+  width: 100%; /* Responsive width */
+  max-width: 600px; /* Proportionate max-width */
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #1e293b; /* Slate-800 to match theme */
+  border-radius: 50px;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(45, 212, 191, 0.2); /* Subtle teal border */
+  transition: all 0.3s ease;
+}
+
+.searchBox:focus-within {
+  box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+  border-color: var(--color-teal-500);
+}
+
+.searchButton {
+  color: white;
+  position: absolute;
+  right: 8px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--gradient-primary); /* Use App's Teal Gradient */
+  border: 0;
+  display: flex; /* Center icon */
+  align-items: center;
+  justify-content: center;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  cursor: pointer;
+}
+
+/* Hover effect */
+.searchButton:hover:not(:disabled) {
+  color: #fff;
+  background-color: #1A1A1A; /* Keep or adapt? Let's use a darker teal or just brightness */
+  filter: brightness(1.1);
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Button pressing effect */
+.searchButton:active:not(:disabled) {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.searchButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.searchInput {
+  border: none;
+  background: none;
+  outline: none;
+  color: #f0fdfa; /* Teal-50 */
+  font-size: 16px; /* Legible size */
+  padding: 15px 60px 15px 24px; /* Right padding for button space */
+  width: 100%;
+  border-radius: 50px;
+}
+
+.searchInput::placeholder {
+  color: rgba(240, 253, 250, 0.4);
+}
+
+  .glass-input {
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
   }
-
-  .glass-effect-strong {
+  
+  .glass-input:focus {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-color: var(--color-teal-500);
+    box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
   }
 
-  .pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 20px rgba(13, 148, 136, 0.3); }
-    50% { box-shadow: 0 0 30px rgba(13, 148, 136, 0.5); }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out forwards;
+  }
+  
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
   }
 }
 
-/* Components */
+/* Component Classes */
 @layer components {
   .btn-primary {
-    @apply px-6 py-3 rounded-xl font-semibold text-white;
+    @apply px-6 py-2.5 rounded-xl font-medium text-white shadow-lg transform transition-all duration-200 outline-none;
     background: var(--gradient-primary);
-    transition: all 0.2s ease;
   }
-
+  
   .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(13, 148, 136, 0.3);
+    @apply -translate-y-0.5 shadow-xl brightness-110;
+    box-shadow: var(--shadow-glow-teal);
+  }
+  
+  .btn-primary:active {
+    @apply translate-y-0 opacity-90;
   }
 
-  .input-field {
-    @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white;
-    @apply focus:outline-none focus:ring-2 focus:ring-teal-500;
-    transition: all 0.2s ease;
+  .btn-secondary {
+    @apply px-6 py-2.5 rounded-xl font-medium text-white shadow-lg transform transition-all duration-200 outline-none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .card-glass {
-    @apply glass-effect rounded-2xl p-6;
-    transition: all 0.2s ease;
+  .btn-secondary:hover {
+    @apply -translate-y-0.5 bg-white/20;
   }
 
-  .card-glass:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  .chip {
+    @apply px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-teal-500/50 hover:text-teal-200;
   }
+
+  .message-bubble {
+    @apply p-4 rounded-2xl max-w-[85%] shadow-md leading-relaxed animate-slide-up;
+  }
+
+  .message-user {
+    background: var(--gradient-primary);
+    color: white;
+    @apply rounded-tr-sm self-end;
+  }
+
+  .message-ai {
+    @apply glass-panel text-slate-200 rounded-tl-sm self-start border-l-4 border-teal-500;
+  }
+}
+
+/* Custom AI Spinner */
+.spinner {
+  background-image: linear-gradient(rgb(186, 66, 255) 35%,rgb(0, 225, 255));
+  width: 100px;
+  height: 100px;
+  animation: spinning82341 1.7s linear infinite;
+  text-align: center;
+  border-radius: 50px;
+  filter: blur(1px);
+  box-shadow: 0px -5px 20px 0px rgb(186, 66, 255), 0px 5px 20px 0px rgb(0, 225, 255);
+}
+
+.spinner1 {
+  background-color: rgb(36, 36, 36);
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  filter: blur(10px);
+}
+
+@keyframes spinning82341 {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.jolly-loader-small {
+  background-image: linear-gradient(rgb(186, 66, 255) 35%,rgb(0, 225, 255));
+  width: 24px;
+  height: 24px;
+  animation: spinning82341 1.7s linear infinite;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  box-shadow: 0px -2px 5px 0px rgb(186, 66, 255), 0px 2px 5px 0px rgb(0, 225, 255);
+}
+.loading-text {
+  font-size: 14px;
+  color: #ccfbf1;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Custom Checkbox Options (Uiverse - WhiteNervosa) */
+.customCheckBoxHolder {
+  margin: 5px;
+  display: flex;
+}
+
+.customCheckBox {
+  width: fit-content;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 8px;
+  background-color: rgba(0, 0, 0, 0.16);
+  border-radius: 0px;
+  color: rgba(255, 255, 255, 0.7);
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-duration: 300ms;
+  transition-property: color, background-color, box-shadow;
+  display: flex;
+  height: 32px;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px 1px 1px 0px;
+  outline: none;
+  justify-content: center;
+  min-width: 55px;
+}
+
+.customCheckBox:hover {
+  background-color: #2c2c2c;
+  color: white;
+  box-shadow: rgba(0, 0, 0, 0.23) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.17) 0px 2px 4px 1px;
+}
+
+.customCheckBox .inner {
+  font-size: 14px; /* Scaled down from 18px for better fit */
+  font-weight: 900;
+  pointer-events: none;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-duration: 300ms;
+  transition-property: transform;
+  transform: translateY(0px);
+}
+
+.customCheckBox:hover .inner {
+  transform: translateY(-2px);
+}
+
+.customCheckBoxWrapper:first-of-type .customCheckBox {
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  border-right: 0px;
+}
+
+.customCheckBoxWrapper:last-of-type .customCheckBox {
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+  border-left: 0px;
+}
+
+.customCheckBoxInput {
+  display: none;
+}
+
+.customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox {
+  background-color: #2d6737;
+  color: white;
+  box-shadow: rgba(0, 0, 0, 0.23) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.17) 0px 2px 4px 1px;
+}
+
+.customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox .inner {
+  transform: translateY(-2px);
+}
+
+.customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox:hover {
+  background-color: #34723f;
+  box-shadow: rgba(0, 0, 0, 0.26) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.15) 0px 3px 6px 2px;
+}
+
+.customCheckBoxWrapper .customCheckBox:hover .inner {
+  transform: translateY(-2px);
+}
+/* Custom Radio Inputs (Uiverse - Spacious74) */
+/* Custom Navigation Tabs (Spacious74 - Adapted for Teal Theme) */
+.radio-inputs {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 0.75rem; /* Increased radius */
+  background-color: rgba(15, 23, 42, 0.4); /* Darker slate backing */
+  box-sizing: border-box;
+  box-shadow: 0 0 0px 1px rgba(255, 255, 255, 0.06);
+  padding: 0.5rem; /* Increased padding */
+  width: auto;
+  font-size: 14px;
+}
+
+.radio-inputs .radio {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.radio-inputs .radio input {
+  display: none;
+}
+
+.radio-inputs .radio .name {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: none;
+  padding: 0.75rem 1.5rem; /* Bulkier padding */
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease-in-out;
+  font-weight: 600; /* Bolder text */
+  letter-spacing: 0.5px;
+}
+
+.radio-inputs .radio input:checked + .name {
+  background-color: #0d9488; /* Teal-600 */
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); /* Teal Gradient */
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4); /* Teal glow */
+  transform: translateY(-1px);
+}
+
+.radio-inputs .radio input + .name:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ... previous radio styles ... */
+.radio-inputs .radio input:checked + .name::before {
+  left: -10px;
+  border-bottom-right-radius: 300px;
+  box-shadow: 3px 3px 0px 3px #e8e8e8;
+}
+
+/* Custom AI Star Button (Uiverse - Adapted for Teal) */
+/* Custom AI Star Button (Uiverse - Adapted for Teal) */
+.ai-assistant-btn {
+  position: relative;
+  padding: 10px 24px; /* Balanced padding */
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); /* TEAL GRADIENT RESTORED */
+  font-size: 14px;
+  font-weight: 700;
+  color: #000; /* Black Text as requested */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem; /* Match nav radius */
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.3); /* Teal Glow */
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px; /* Separate slightly from tabs */
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Ensure text is always clickable and visible */
+.ai-assistant-btn span {
+  position: relative;
+  z-index: 10;
+  pointer-events: none; /* Let clicks pass through to button */
+}
+
+/* Stars should NOT intercept clicks */
+.ai-assistant-btn .star-1,
+.ai-assistant-btn .star-2,
+.ai-assistant-btn .star-3,
+.ai-assistant-btn .star-4,
+.ai-assistant-btn .star-5,
+.ai-assistant-btn .star-6 {
+  /* ... positioning ... */
+  pointer-events: none; /* CRITICAL FIX */
+  filter: drop-shadow(0 0 0 #fff); /* Strict White */
+  z-index: -1; /* Behind text */
+}
+
+.ai-assistant-btn .star-1 {
+  position: absolute; top: 20%; left: 20%; width: 25px; transition: all 1s cubic-bezier(0.05, 0.83, 0.43, 0.96);
+}
+.ai-assistant-btn .star-2 {
+  position: absolute; top: 45%; left: 45%; width: 15px; transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
+}
+.ai-assistant-btn .star-3 {
+  position: absolute; top: 40%; left: 40%; width: 5px; transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
+}
+.ai-assistant-btn .star-4 {
+  position: absolute; top: 20%; left: 40%; width: 8px; transition: all 0.8s cubic-bezier(0, 0.4, 0, 1.01);
+}
+.ai-assistant-btn .star-5 {
+  position: absolute; top: 25%; left: 45%; width: 15px; transition: all 0.6s cubic-bezier(0, 0.4, 0, 1.01);
+}
+.ai-assistant-btn .star-6 {
+  position: absolute; top: 5%; left: 50%; width: 5px; transition: all 0.8s ease;
+}
+
+.ai-assistant-btn:hover {
+  background: transparent;
+  color: #5eead4; /* Teal-300: Bright Cyan on Hover */
+  box-shadow: 0 0 25px rgba(20, 184, 166, 0.7);
+  border-color: #5eead4;
+}
+
+.ai-assistant-btn:hover .star-1 {
+  top: -80%; left: -30%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
+}
+.ai-assistant-btn:hover .star-2 {
+  top: -25%; left: 10%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
+}
+.ai-assistant-btn:hover .star-3 {
+  top: 55%; left: 25%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
+}
+.ai-assistant-btn:hover .star-4 {
+  top: 30%; left: 80%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
+}
+.ai-assistant-btn:hover .star-5 {
+  top: 25%; left: 115%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
+}
+.ai-assistant-btn:hover .star-6 {
+  top: 5%; left: 60%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
+}
+
+/* Custom Search/Chat Input (Uiverse - OnlyCodeChannel) */
+.searchBox {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #2f3640;
+  border-radius: 50px;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.searchButton {
+  color: white;
+  position: absolute;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-2, linear-gradient(90deg, #2AF598 0%, #009EFD 100%));
+  border: 0;
+  display: inline-block;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.searchButton:hover {
+  color: #fff;
+  background-color: #1A1A1A;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
+  transform: translateY(-3px);
+}
+
+.searchButton:active {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.searchInput {
+  border: none;
+  background: none;
+  outline: none;
+  color: white;
+  font-size: 15px;
+  padding: 16px 56px 16px 26px;
+  width: 100%;
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* AI Profile Loader */
+.ai-profile-loader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.ai-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #009EFD 0%, #2AF598 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
 }
