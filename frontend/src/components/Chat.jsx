@@ -2,15 +2,18 @@ import { useState, useRef, useEffect } from 'react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+// Initial welcome quick actions
+const INITIAL_ACTIONS = ['Book Appointment', 'Check Availability', 'View My Appointments', 'Cancel Appointment']
+
 function Chat({ role = 'patient', userId, userEmail }) {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [sessionId, setSessionId] = useState(null)
-    const [suggestedActions, setSuggestedActions] = useState([])
+    const [suggestedActions, setSuggestedActions] = useState(INITIAL_ACTIONS)
     const messagesEndRef = useRef(null)
 
-    // Welcome message
+    // Welcome message with initial actions
     useEffect(() => {
         const welcomeMsg = {
             role: 'assistant',
@@ -19,6 +22,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 : "👋 Hello! I'm your Medical Assistant. I can help you:\n\n• Book appointments\n• Check availability\n• Cancel appointments\n• View your schedule\n\nHow can I help you today?"
         }
         setMessages([welcomeMsg])
+        setSuggestedActions(INITIAL_ACTIONS) // Show initial actions
     }, [role])
 
     // Auto-scroll to bottom
@@ -40,9 +44,9 @@ function Chat({ role = 'patient', userId, userEmail }) {
             return ['Yes, confirm', 'No, cancel']
         }
 
-        // Check for doctor selection - IMPROVED DETECTION
-        if ((lowerContent.includes('doctor') || lowerContent.includes('available doctors')) &&
-            (content.includes('Sarah') || content.includes('Mohit') || content.includes('ID:'))) {
+        // Check for doctor selection - STRONG DETECTION
+        if (lowerContent.includes('doctor') &&
+            (lowerContent.includes('available') || lowerContent.includes('following') || content.includes('ID:'))) {
             return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
         }
 
@@ -94,14 +98,14 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 setSuggestedActions(actions)
             } else {
                 const errorText = await response.text()
-                console.error('API Error:', errorText)
-                throw new Error('Failed to get response')
+                console.error('API Error Response:', response.status, errorText)
+                throw new Error(`Backend returned ${response.status}`)
             }
         } catch (error) {
             console.error('Chat error:', error)
             const errorMessage = {
                 role: 'assistant',
-                content: '❌ Sorry, I encountered an error. The backend might be down. Please check the console and try again.'
+                content: `❌ Backend error: ${error.message}. Make sure backend is running on ${API_URL}`
             }
             setMessages(prev => [...prev, errorMessage])
         } finally {
@@ -137,7 +141,9 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 {suggestedActions.length > 0 && !isLoading && (
                     <div className="flex justify-start">
                         <div className="max-w-[70%]">
-                            <p className="text-white/60 text-sm mb-2">Quick options:</p>
+                            <p className="text-white/60 text-sm mb-2">
+                                {messages.length === 1 ? 'Quick actions:' : 'Choose an option:'}
+                            </p>
                             <div className="flex flex-wrap gap-2">
                                 {suggestedActions.map((action, idx) => (
                                     <button
