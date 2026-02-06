@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
-import { SignedIn, SignedOut, useUser, UserButton } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, useUser, UserButton, useClerk } from '@clerk/clerk-react'
 import Chat from './components/Chat'
 import RoleSelector from './components/RoleSelector'
-import SignInPage from './pages/SignInPage'
+import UnifiedLoginPage from './pages/UnifiedLoginPage'
 import SignUpPage from './pages/SignUpPage'
 import PatientPage from './pages/PatientPage'
 import DoctorDashboardPage from './pages/DoctorDashboardPage'
@@ -13,6 +13,7 @@ import DoctorReportsPage from './pages/DoctorReportsPage'
 
 function MainApp() {
     const { user } = useUser()
+    const { signOut } = useClerk()
     const [role, setRole] = useState(null)
 
 
@@ -161,6 +162,7 @@ function App() {
                     <Route path="*" element={<Navigate to="/doctor" replace />} />
                 </Routes>
             </BrowserRouter>
+
         )
     }
 
@@ -168,7 +170,8 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/sign-in/*" element={<SignInPage />} />
+                {/* Unified Login Page overrides /sign-in */}
+                <Route path="/sign-in/*" element={<UnifiedLoginPage />} />
                 <Route path="/sign-up/*" element={<SignUpPage />} />
 
                 {/* Patient route */}
@@ -186,7 +189,7 @@ function App() {
                     }
                 />
 
-                {/* Doctor routes */}
+                {/* Doctor routes (Clerk) */}
                 <Route
                     path="/doctor/*"
                     element={

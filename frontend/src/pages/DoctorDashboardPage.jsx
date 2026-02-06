@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { UserButton } from '@clerk/clerk-react'
 
+import Loader from '../components/Loader'
+import LogoutButton from '../components/LogoutButton'
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 function DoctorDashboardPage({ doctorId = 5, userEmail }) {
@@ -66,7 +69,7 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
                         </div>
                     </div>
 
-                    {/* Navigation Tabs (Spacious74 Radio Buttons) */}
+                    {/* Navigation Tabs */}
                     <div className="flex items-center gap-6">
                         <div className="radio-inputs">
                             <label className="radio">
@@ -98,81 +101,58 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
                             </label>
                         </div>
 
+// ... (removed inline import)
+                        // ... (imports)
+
+                        // ...
+
                         {/* Special AI Assistant Button */}
                         <button
                             className="ai-assistant-btn"
                             onClick={() => navigate('/chat')}
                         >
                             <span>AI Assistant</span>
+                            {/* ... (stars SVGs) ... */}
                             <div className="star-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                    <defs></defs>
-                                    <g id="Layer_x0020_1">
-                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
-                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
-                                    </g>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53">
+                                    <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
                                 </svg>
                             </div>
                             <div className="star-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                    <defs></defs>
-                                    <g id="Layer_x0020_1">
-                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
-                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
-                                    </g>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53">
+                                    <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
                                 </svg>
                             </div>
                             <div className="star-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                    <defs></defs>
-                                    <g id="Layer_x0020_1">
-                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
-                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
-                                    </g>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53">
+                                    <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
                                 </svg>
                             </div>
                             <div className="star-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                    <defs></defs>
-                                    <g id="Layer_x0020_1">
-                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
-                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
-                                    </g>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53">
+                                    <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
                                 </svg>
                             </div>
                             <div className="star-5">
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                    <defs></defs>
-                                    <g id="Layer_x0020_1">
-                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
-                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
-                                    </g>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53">
+                                    <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
                                 </svg>
                             </div>
                             <div className="star-6">
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" version="1.1" style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision', imageRendering: 'optimizeQuality', fillRule: 'evenodd', clipRule: 'evenodd' }} viewBox="0 0 784.11 815.53" xmlnsXlink="http://www.w3.org/1999/xlink">
-                                    <defs></defs>
-                                    <g id="Layer_x0020_1">
-                                        <metadata id="CorelCorpID_0Corel-Layer"></metadata>
-                                        <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
-                                    </g>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53">
+                                    <path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path>
                                 </svg>
                             </div>
                         </button>
 
                         <div className="flex items-center gap-3 border-l border-white/20 pl-6">
-                            <button
-                                onClick={() => {
+                            <LogoutButton
+                                onLogout={() => {
                                     localStorage.removeItem('doctorAuth');
                                     localStorage.removeItem('simpleDoctorAuth');
                                     window.location.href = '/sign-in';
                                 }}
-                                className="px-3 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-200 hover:text-white rounded-lg transition-colors flex items-center gap-2"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                            </button>
+                            />
                             <UserButton afterSignOutUrl="/sign-in" />
                         </div>
                     </div>
@@ -217,7 +197,9 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
                 <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-sm">
                     <h2 className="text-white text-xl font-bold mb-4">Recent Appointments</h2>
                     {loading ? (
-                        <p className="text-white/60">Loading appointments...</p>
+                        <div className="flex justify-center py-8">
+                            <Loader />
+                        </div>
                     ) : appointments.length === 0 ? (
                         <p className="text-white/60">No appointments found</p>
                     ) : (

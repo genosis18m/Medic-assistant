@@ -1,0 +1,86 @@
+.card {
+  /* color used to softly clip top and bottom of the .words container */
+  --bg-color: #111;
+  background-color: var(--bg-color);
+  padding: 1rem 2rem;
+  border-radius: 1.25rem;
+  display: inline-block; /* Ensure it wraps content */
+}
+
+.loader {
+  color: rgb(124, 124, 124);
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 25px;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 40px;
+  padding: 10px 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border-radius: 8px;
+  align-items: center; /* Center vertically if needed */
+}
+
+.words {
+  overflow: hidden;
+  height: 100%; /* Ensure words container matches loader height */
+}
+
+.word {
+  display: block;
+  height: 100%;
+  padding-left: 10px; /* Increased from 6px for spacing */
+  color: #956afa;
+  animation: spin_4991 5s infinite; /* Slowed down slightly for readability */
+}
+
+/* 
+   Animation logic:
+   0% - 10%: Show Item 1 (0%)
+   10% - 25%: Move to Item 2 (-100%)
+   25% - 35%: Show Item 2
+   35% - 50%: Move to Item 3 (-200%)
+   50% - 60%: Show Item 3
+   60% - 75%: Move to Item 4 (-300%)
+   75% - 85%: Show Item 4
+   85% - 100%: Move to Item 5 (-400%) -> Loop back to 0 theoretically if Item 5 == Item 1
+*/
+@keyframes spin_4991 {
+  0%, 10% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+  20%, 30% {
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
+  }
+  40%, 50% {
+    -webkit-transform: translateY(-200%);
+    transform: translateY(-200%);
+  }
+  60%, 70% {
+    -webkit-transform: translateY(-300%);
+    transform: translateY(-300%);
+  }
+  80%, 90% {
+    -webkit-transform: translateY(-400%);
+    transform: translateY(-400%);
+  }
+  100% {
+    -webkit-transform: translateY(-500%); /* Move to empty or reset? */
+    transform: translateY(-500%);
+  }
+}
+/* Re-using user's keyframes but adjusting for 5 items mapping */
+@keyframes spin_user_provided {
+  10% { transform: translateY(-112%); }
+  25% { transform: translateY(-100%); }
+  35% { transform: translateY(-212%); }
+  50% { transform: translateY(-200%); }
+  60% { transform: translateY(-312%); }
+  75% { transform: translateY(-300%); }
+  85% { transform: translateY(-412%); }
+  100% { transform: translateY(-400%); }
+}
