@@ -483,3 +483,9 @@ def chat(
         print(f"📊 Tools used in this turn: {', '.join(tools_used)}")
     
     return final_response, conversation_history
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        error_msg = f"😕 I encountered an internal error: {str(e)}. Please try again."
+        return error_msg, conversation_history
