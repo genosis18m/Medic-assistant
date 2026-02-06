@@ -52,61 +52,66 @@ def check_availability(
         Dictionary with doctor availability information
     """
     try:
-        parsed_date = datetime.strptime(check_date, "%Y-%m-%d").date()
-    except ValueError:
-        return {"error": "Invalid date format. Use YYYY-MM-DD"}
-    
-    # Don't allow past dates
-    if parsed_date < date.today():
-        return {"error": "Cannot check availability for past dates"}
-    
-    with get_session() as session:
-        # Build query for doctors
-        statement = select(Doctor)
+        try:
+            parsed_date = datetime.strptime(check_date, "%Y-%m-%d").date()
+        except ValueError:
+            return {"error": "Invalid date format. Use YYYY-MM-DD"}
         
-        if doctor_id:
-            statement = statement.where(Doctor.id == doctor_id)
-        elif specialization:
-            try:
-                spec = Specialization(specialization.lower())
-                statement = statement.where(Doctor.specialization == spec)
-            except ValueError:
-                return {"error": f"Invalid specialization: {specialization}"}
+        # Don't allow past dates
+        if parsed_date < date.today():
+            return {"error": "Cannot check availability for past dates"}
         
-        doctors = session.exec(statement).all()
-        
-        if not doctors:
-            return {"message": "No doctors found matching criteria", "availability": []}
-        
-        availability = []
-        
-        for doctor in doctors:
-            # Generate all possible slots
-            all_slots = generate_time_slots(
-                doctor.available_from,
-                doctor.available_to
-            )
+        with get_session() as session:
+            # Build query for doctors
+            statement = select(Doctor)
             
-            # Get booked slots
-            booked = get_booked_slots(doctor.id, parsed_date)
+            if doctor_id:
+                statement = statement.where(Doctor.id == doctor_id)
+            elif specialization:
+                try:
+                    spec = Specialization(specialization.lower())
+                    statement = statement.where(Doctor.specialization == spec)
+                except ValueError:
+                    return {"error": f"Invalid specialization: {specialization}"}
             
-            # Calculate available slots
-            available_slots = [
-                slot.strftime("%H:%M") for slot in all_slots 
-                if slot not in booked
-            ]
+            doctors = session.exec(statement).all()
             
-            availability.append({
-                "doctor_id": doctor.id,
-                "doctor_name": doctor.name,
-                "specialization": doctor.specialization.value,
+            if not doctors:
+                return {"message": "No doctors found matching criteria", "availability": []}
+            
+            availability = []
+            
+            for doctor in doctors:
+                # Generate all possible slots
+                all_slots = generate_time_slots(
+                    doctor.available_from,
+                    doctor.available_to
+                )
+                
+                # Get booked slots
+                booked = get_booked_slots(doctor.id, parsed_date)
+                
+                # Calculate available slots
+                available_slots = [
+                    slot.strftime("%H:%M") for slot in all_slots 
+                    if slot not in booked
+                ]
+                
+                availability.append({
+                    "doctor_id": doctor.id,
+                    "doctor_name": doctor.name,
+                    "specialization": doctor.specialization.value,
+                    "date": check_date,
+                    "available_slots": available_slots,
+                    "total_available": len(available_slots)
+                })
+            
+            return {
                 "date": check_date,
-                "available_slots": available_slots,
-                "total_available": len(available_slots)
-            })
-        
-        return {
-            "date": check_date,
-            "availability": availability,
-            "total_doctors": len(availability)
-        }
+                "availability": availability,
+                "total_doctors": len(availability)
+            }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {"error": f"Internal Error checking availability: {str(e)}"}

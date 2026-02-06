@@ -8,7 +8,7 @@ import os
 import json
 from datetime import date, datetime
 from groq import Groq
-from typing import Optional
+from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 
 from tools.availability import check_availability
@@ -470,57 +470,8 @@ def chat(
         "content": user_message
     })
     
-    # Call Groq with tools
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=conversation_history,
-        tools=tools,
-        tool_choice="auto"
-    )
-    
-    assistant_message = response.choices[0].message
-    tools_used = []
-    
-    # Check if the model wants to call tools
-    while assistant_message.tool_calls:
-        # Add assistant's tool call request to history
-        conversation_history.append({
-            "role": "assistant",
-            "content": assistant_message.content,
-            "tool_calls": [
-                {
-                    "id": tc.id,
-                    "type": "function",
-                    "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments
-                    }
-                }
-                for tc in assistant_message.tool_calls
-            ]
-        })
-        
-        # Execute each tool call
-        for tool_call in assistant_message.tool_calls:
-            function_name = tool_call.function.name
-            arguments = json.loads(tool_call.function.arguments)
-            
-            print(f"🔧 Executing tool: {function_name}")
-            print(f"   Arguments: {arguments}")
-            
-            result = execute_tool(function_name, arguments)
-            tools_used.append(function_name)
-            
-            print(f"   Result: {json.dumps(result, indent=2)[:500]}...")  # Truncate for logging
-            
-            # Add tool result to conversation
-            conversation_history.append({
-                "role": "tool",
-                "tool_call_id": tool_call.id,
-                "content": json.dumps(result)
-            })
-        
-        # Get next response from the model
+    try:
+        # Call Groq with tools
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=conversation_history,
@@ -529,16 +480,6 @@ def chat(
         )
         
         assistant_message = response.choices[0].message
-    
-    # Add final response to history
-    final_response = assistant_message.content or ""
-    conversation_history.append({
-        "role": "assistant",
-        "content": final_response
-    })
-    
-    # Log tools used for analytics
-    if tools_used:
         print(f"📊 Tools used in this turn: {', '.join(tools_used)}")
     
     return final_response, conversation_history
