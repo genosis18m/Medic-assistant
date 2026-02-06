@@ -52,10 +52,10 @@ function PatientPage() {
     const userEmail = user.primaryEmailAddress?.emailAddress
 
     return (
-        <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-            {/* Sidebar - 25% width */}
+        <div className="h-screen flex bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+            {/* Sidebar - 25% width, independently scrollable */}
             <div className="w-1/4 min-w-[280px] max-w-[350px] bg-white/5 border-r border-white/10 flex flex-col">
-                <div className="p-4 border-b border-white/10">
+                <div className="p-4 border-b border-white/10 flex-shrink-0">
                     <h2 className="text-white text-lg font-bold flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -91,9 +91,9 @@ function PatientPage() {
                 </div>
             </div>
 
-            {/* Main Chat Area - 75% width with header included */}
+            {/* Main Chat Area - 75% width, fits entire screen height */}
             <div className="flex-1 flex flex-col min-w-0">
-                {/* Header - Fixed at top */}
+                {/* Header - Fixed height */}
                 <header className="py-4 px-6 shadow-lg bg-gradient-to-r from-teal-600 to-blue-600 flex-shrink-0">
                     <div className="max-w-5xl mx-auto flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ function PatientPage() {
                     </div>
                 </header>
 
-                {/* Chat Component - Scrollable */}
+                {/* Chat Component - Takes remaining height, scrolls independently */}
                 <div className="flex-1 min-h-0">
                     <Chat role="patient" userId={userId} userEmail={userEmail} />
                 </div>
