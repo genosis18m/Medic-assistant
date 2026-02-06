@@ -28,6 +28,8 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     role: Literal["patient", "doctor"] = "patient"
+    user_email: Optional[str] = None
+    user_id: Optional[str] = None
 
 
 class ChatResponse(BaseModel):
