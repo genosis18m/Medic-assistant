@@ -414,11 +414,11 @@ body {
 }
 
 .radio-inputs .radio input:checked + .name {
-  background-color: #0d9488; /* Teal-600 */
-  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); /* Teal Gradient */
+  background-color: #0f766e; /* Teal-700 */
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%); /* Deep Teal to Teal-600 */
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4); /* Teal glow */
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3); /* Teal glow */
   transform: translateY(-1px);
 }
 
@@ -502,54 +502,181 @@ body {
   border-color: #5eead4;
 }
 
-.ai-assistant-btn:hover .star-1 {
-  top: -80%; left: -30%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
-}
-.ai-assistant-btn:hover .star-2 {
-  top: -25%; left: 10%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
-}
-.ai-assistant-btn:hover .star-3 {
-  top: 55%; left: 25%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
-}
-.ai-assistant-btn:hover .star-4 {
-  top: 30%; left: 80%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
-}
-.ai-assistant-btn:hover .star-5 {
-  top: 25%; left: 115%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
-}
-.ai-assistant-btn:hover .star-6 {
-  top: 5%; left: 60%; filter: drop-shadow(0 0 10px #5eead4); z-index: 0;
-}
-
-/* Custom Search/Chat Input (Uiverse - OnlyCodeChannel) */
-.searchBox {
-  display: flex;
-  width: 100%;
-  max-width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background: #2f3640;
-  border-radius: 50px;
+/* AI Assistant Button - Refined */
+.ai-assistant-btn {
+  /* ... existing base styles ... */
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.searchButton {
-  color: white;
-  position: absolute;
-  right: 8px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--gradient-2, linear-gradient(90deg, #2AF598 0%, #009EFD 100%));
-  border: 0;
-  display: inline-block;
-  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.3);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
+  margin-left: 8px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Custom AI Star Button (Uiverse.io by MuhammadHasann) */
+.ai-assistant-btn {
+  position: relative;
+  padding: 12px 35px;
+  background: #fec195;
+  font-size: 17px;
+  font-weight: 500;
+  color: #181818;
+  border: 3px solid #fec195;
+  border-radius: 8px;
+  box-shadow: 0 0 0 #fec1958c;
+  transition: all 0.3s ease-in-out;
   cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.star-1 {
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  width: 25px;
+  height: auto;
+  filter: drop-shadow(0 0 0 #fffdef);
+  z-index: -5;
+  transition: all 1s cubic-bezier(0.05, 0.83, 0.43, 0.96);
+}
+
+.star-2 {
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  width: 15px;
+  height: auto;
+  filter: drop-shadow(0 0 0 #fffdef);
+  z-index: -5;
+  transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.star-3 {
+  position: absolute;
+  top: 40%;
+  left: 40%;
+  width: 5px;
+  height: auto;
+  filter: drop-shadow(0 0 0 #fffdef);
+  z-index: -5;
+  transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.star-4 {
+  position: absolute;
+  top: 20%;
+  left: 40%;
+  width: 8px;
+  height: auto;
+  filter: drop-shadow(0 0 0 #fffdef);
+  z-index: -5;
+  transition: all 0.8s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.star-5 {
+  position: absolute;
+  top: 25%;
+  left: 45%;
+  width: 15px;
+  height: auto;
+  filter: drop-shadow(0 0 0 #fffdef);
+  z-index: -5;
+  transition: all 0.6s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.star-6 {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  width: 5px;
+  height: auto;
+  filter: drop-shadow(0 0 0 #fffdef);
+  z-index: -5;
+  transition: all 0.8s ease;
+}
+
+.ai-assistant-btn:hover {
+  background: transparent;
+  color: #fec195;
+  box-shadow: 0 0 25px #fec1958c;
+}
+
+.ai-assistant-btn:hover .star-1 {
+  position: absolute;
+  top: -80%;
+  left: -30%;
+  width: 25px;
+  height: auto;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+.ai-assistant-btn:hover .star-2 {
+  position: absolute;
+  top: -25%;
+  left: 10%;
+  width: 15px;
+  height: auto;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+.ai-assistant-btn:hover .star-3 {
+  position: absolute;
+  top: 55%;
+  left: 25%;
+  width: 5px;
+  height: auto;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+.ai-assistant-btn:hover .star-4 {
+  position: absolute;
+  top: 30%;
+  left: 80%;
+  width: 8px;
+  height: auto;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+.ai-assistant-btn:hover .star-5 {
+  position: absolute;
+  top: 25%;
+  left: 115%;
+  width: 15px;
+  height: auto;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+.ai-assistant-btn:hover .star-6 {
+  position: absolute;
+  top: 5%;
+  left: 60%;
+  width: 5px;
+  height: auto;
+  filter: drop-shadow(0 0 10px #fffdef);
+  z-index: 2;
+}
+
+.fil0 {
+  fill: #fffdef;
 }
 
 .searchButton:hover {

@@ -1,0 +1,105 @@
+INFO:     Will watch for changes in these directories: ['/home/mohit-adoni/Doctor-Assistant/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [33886] using WatchFiles
+INFO:     Started server process [33891]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'setup_google_auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [33891]
+INFO:     Started server process [34142]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+✅ BACKEND STARTUP: Email System Enabled = True
+
+INFO:     127.0.0.1:33278 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33638 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35758 - "GET /chat/history?session_id=2a4caa96-fa9b-43c8-912b-0413d4c4570c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35762 - "GET /chat/history?session_id=2a4caa96-fa9b-43c8-912b-0413d4c4570c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35758 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41790 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41790 - "OPTIONS /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41800 - "POST /chat HTTP/1.1" 200 OK
+🔧 Executing tool: list_doctors
+📊 Tools used: list_doctors
+INFO:     127.0.0.1:48540 - "POST /chat HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "/home/mohit-adoni/Doctor-Assistant/backend/agent.py", line 497, in chat
+    response = client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/groq/resources/chat/completions.py", line 461, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/groq/_base_client.py", line 1242, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/groq/_base_client.py", line 1044, in request
+    raise self._make_status_error_from_response(err.response) from None
+groq.BadRequestError: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=check_availability>{\\"check_date\\": \\"2026-02-07\\", \\"doctor_id\\": 2}</function>\n\n'}}
+⚠️ Tool use failed, retrying with correction... Error: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=check_availability>{\\"check_date\\": \\"2026-02-07\\", \\"doctor_id\\": 2}</function>\n\n'}}
+❌ Retry failed: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=check_availability>{"date": "2026-02-07", "doctor_id": 2, "specialization": "neurology"}<function>'}}
+INFO:     127.0.0.1:53034 - "POST /chat HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [34142]
+INFO:     Started server process [36425]
+INFO:     Waiting for application startup.
+WARNING:  WatchFiles detected changes in 'agent.py'. Reloading...
+INFO:     Application startup complete.
+INFO:     Stopping reloader process [33886]
+INFO:     Will watch for changes in these directories: ['/home/mohit-adoni/Doctor-Assistant/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [36639] using WatchFiles
+INFO:     Started server process [36641]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+✅ BACKEND STARTUP: Email System Enabled = True
+
+INFO:     127.0.0.1:45320 - "GET /chat/history?session_id=a48f877f-f68a-442b-813b-6f94c667479e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45320 - "GET /chat/history?session_id=a48f877f-f68a-442b-813b-6f94c667479e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45324 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45324 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "/home/mohit-adoni/Doctor-Assistant/backend/agent.py", line 463, in chat
+    response = client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/groq/resources/chat/completions.py", line 461, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/groq/_base_client.py", line 1242, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/groq/_base_client.py", line 1044, in request
+    raise self._make_status_error_from_response(err.response) from None
+groq.BadRequestError: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=check_availability>check_date=2026-02-07</function>\n\n'}}
+⚠️ Tool use failed, retrying with correction... Error: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=check_availability>check_date=2026-02-07</function>\n\n'}}
+❌ Retry failed: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=check_availability>{"check_date": "2026-02-07",}</function>\n'}}
+INFO:     127.0.0.1:45324 - "POST /chat HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [36641]
+INFO:     Stopping reloader process [36639]
+INFO:     Will watch for changes in these directories: ['/home/mohit-adoni/Doctor-Assistant/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [36917] using WatchFiles
+INFO:     Started server process [36919]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'agent.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [36919]
+INFO:     Started server process [37119]
+INFO:     Waiting for application startup.
+INFO:     Will watch for changes in these directories: ['/home/mohit-adoni/Doctor-Assistant/backend']
+ERROR:    [Errno 98] Address already in use
+INFO:     Application startup complete.
+INFO:     Stopping reloader process [36917]

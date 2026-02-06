@@ -114,6 +114,14 @@ async def lifespan(app: FastAPI):
                 session.add(doc)
             session.commit()
             print("✓ Seeded 4 doctors into database")
+        
+        # Ensure Dr. Michael Chen has a phone number (Fix for existing DBs)
+        chen = session.exec(select(Doctor).where(Doctor.name == "Dr. Michael Chen")).first()
+        if chen and not chen.phone_number:
+            chen.phone_number = "+919876543210"
+            session.add(chen)
+            session.commit()
+            print("✓ Updated Dr. Michael Chen with phone number")
     
     yield
 
@@ -128,11 +136,7 @@ app = FastAPI(
 # CORS middleware for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite default
-        "http://localhost:3000",  # Alternative
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -161,7 +165,7 @@ def root() -> dict[str, str]:
 
 
 @app.post("/chat", response_model=ChatResponse)
-def chat_endpoint(request: ChatRequest) -> ChatResponse:
+async def chat_endpoint(request: ChatRequest) -> ChatResponse:
     """
     Main chat endpoint for the AI medical assistant.
     
@@ -216,9 +220,11 @@ def chat_endpoint(request: ChatRequest) -> ChatResponse:
             
             if doctor:
                 user_context = f"\nSYSTEM CONTEXT: You are assisting {doctor.name} (Doctor ID: {doctor.id}). Specialization: {doctor.specialization.value}."
+                if hasattr(doctor, 'phone_number') and doctor.phone_number:
+                    user_context += f" Phone: {doctor.phone_number}"
     
     try:
-        response, updated_history, suggested_actions = chat(
+        response, updated_history, suggested_actions = await chat(
             user_message=request.message,
             conversation_history=session_data["history"],
             role=request.role,
@@ -336,6 +342,7 @@ def generate_doctor_report(request: ReportRequest) -> dict:
 @app.get("/appointments")
 def list_all_appointments(
     doctor_id: Optional[int] = None,
+    patient_email: Optional[str] = None,
     date_str: Optional[str] = None,
     status: Optional[str] = None
 ) -> dict:
@@ -343,6 +350,7 @@ def list_all_appointments(
     from tools.booking import list_appointments
     
     return list_appointments(
+        patient_email=patient_email,
         doctor_id=doctor_id,
         date_str=date_str,
         status=status

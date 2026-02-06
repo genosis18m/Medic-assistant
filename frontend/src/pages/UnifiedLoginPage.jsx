@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useSignIn } from '@clerk/clerk-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { SignIn } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import './UnifiedLoginPage.css';
 
 const UnifiedLoginPage = () => {
-    // Role state: 'doctor' or 'patient'
-    const [role, setRole] = useState('doctor');
+    // isChecked = true -> Patient (Back), false -> Doctor (Front)
+    const [isChecked, setIsChecked] = useState(false);
     const navigate = useNavigate();
 
     // -- DOCTOR LOGIN STATE --
@@ -13,32 +13,32 @@ const UnifiedLoginPage = () => {
     const [doctorPassword, setDoctorPassword] = useState('');
     const [doctorError, setDoctorError] = useState('');
 
-    // -- PATIENT LOGIN STATE --
-    const { isLoaded, signIn, setActive } = useSignIn();
-    const [patientEmail, setPatientEmail] = useState('');
-    const [patientPassword, setPatientPassword] = useState('');
-    const [patientError, setPatientError] = useState('');
-
     // --- DOCTOR LOGIN HANDLER ---
     const handleDoctorLogin = (e) => {
         e.preventDefault();
         setDoctorError('');
 
-        // Simple mock authentication for demo
+        // Simple mock authentication demo logic
         const validDoctors = {
             'sarah@clinic.com': { id: 1, name: 'Dr. Sarah Johnson' },
             'michael@clinic.com': { id: 2, name: 'Dr. Michael Chen' },
             'emily@clinic.com': { id: 3, name: 'Dr. Emily Williams' },
             'james@clinic.com': { id: 4, name: 'Dr. James Brown' },
             'adonimohit@gmail.com': { id: 5, name: 'Dr. Mohit Adoni' },
-            'doctor@clinic.com': { id: 5, name: 'Dr. Mohit Adoni' }
+            'doctor@clinic.com': { id: 5, name: 'Dr. Mohit Adoni' },
+            'momoochan.ofc@gmail.com': { id: 5, name: 'Dr. Mohit Adoni' } // Added user email for easier testing
         };
 
-        if (validDoctors[doctorEmail] && doctorPassword === 'password') {
+        // Normalize input: remove spaces, lowercase email
+        const normalizedEmail = doctorEmail.trim().toLowerCase();
+        const normalizedPassword = doctorPassword.trim(); // Optional: allow spaces in password if needed, but 'password' has none
+
+        // Check against valid doctors
+        if (validDoctors[normalizedEmail] && normalizedPassword === 'password') {
             const doctorData = {
-                email: doctorEmail,
-                doctorId: validDoctors[doctorEmail].id,
-                name: validDoctors[doctorEmail].name,
+                email: normalizedEmail,
+                doctorId: validDoctors[normalizedEmail].id,
+                name: validDoctors[normalizedEmail].name,
                 role: 'doctor'
             };
             localStorage.setItem('simpleDoctorAuth', JSON.stringify(doctorData));
@@ -48,132 +48,100 @@ const UnifiedLoginPage = () => {
         }
     };
 
-    // --- PATIENT LOGIN HANDLER ---
-    const handlePatientLogin = async (e) => {
-        e.preventDefault();
-        if (!isLoaded) return;
-        setPatientError('');
-
-        try {
-            const result = await signIn.create({
-                identifier: patientEmail,
-                password: patientPassword,
-            });
-
-            if (result.status === "complete") {
-                await setActive({ session: result.createdSessionId });
-                navigate('/patient');
-            } else {
-                console.log(result);
-                setPatientError('Login incomplete. Multi-factor needed?');
-            }
-        } catch (err) {
-            console.error(err);
-            setPatientError(err.errors?.[0]?.message || 'Invalid email or password');
-        }
-    };
-
     return (
-        <div className="login-wrapper">
-            <div className="login-card">
-                {/* Header */}
-                <div className="login-header">
-                    <svg className="logo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
-                    <h1 className="login-title">Welcome back</h1>
-                    <p className="login-subtitle">Sign in to your account</p>
-                </div>
+        <div className="wrapper">
+            <div className="card-switch">
+                <label className="switch">
+                    {/* Accessibly hidden toggle input */}
+                    <input
+                        type="checkbox"
+                        className="toggle"
+                        checked={isChecked}
+                        onChange={(e) => setIsChecked(e.target.checked)}
+                    />
 
-                {/* Role Tabs */}
-                <div className="role-tabs">
-                    <button
-                        className={`role-tab ${role === 'doctor' ? 'active' : ''}`}
-                        onClick={() => setRole('doctor')}
-                    >
-                        Doctor Portal
-                    </button>
-                    <button
-                        className={`role-tab ${role === 'patient' ? 'active' : ''}`}
-                        onClick={() => setRole('patient')}
-                    >
-                        Patient Login
-                    </button>
-                </div>
+                    {/* The "Button of Change" - Visible Toggle Switch */}
+                    <div className="toggle-label" onClick={(e) => e.stopPropagation()}>
+                        {/* We stop propagation so clicking the label doesn't double-toggle, 
+                             control is handled by the parent label wrapping the input or manual state */}
+                        <span className={`toggle-text ${!isChecked ? 'active' : ''}`}>Doctor</span>
+                        <div className="toggle-slider" onClick={() => setIsChecked(!isChecked)}>
+                            <div className="toggle-knob"></div>
+                        </div>
+                        <span className={`toggle-text ${isChecked ? 'active' : ''}`}>Patient</span>
+                    </div>
 
-                {/* Forms */}
-                {role === 'doctor' ? (
-                    <form className="login-form" onSubmit={handleDoctorLogin}>
-                        <div className="input-group">
-                            <label className="input-label">Email Address</label>
-                            <input
-                                className="custom-input"
-                                type="email"
-                                placeholder="name@clinic.com"
-                                value={doctorEmail}
-                                onChange={(e) => setDoctorEmail(e.target.value)}
-                                required
-                            />
+                    <div className="flip-card__inner">
+                        {/* FRONT: DOCTOR LOGIN */}
+                        <div className="flip-card__front">
+                            <div className="logo-container">
+                                <svg className="w-10 h-10 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                            </div>
+                            <div className="title">Doctor Portal</div>
+                            <form className="flip-card__form" onSubmit={handleDoctorLogin}>
+                                <input
+                                    className="flip-card__input"
+                                    name="email"
+                                    placeholder="Doctor Email"
+                                    type="email"
+                                    value={doctorEmail}
+                                    onChange={(e) => setDoctorEmail(e.target.value)}
+                                    required
+                                />
+                                <input
+                                    className="flip-card__input"
+                                    name="password"
+                                    placeholder="Password"
+                                    type="password"
+                                    value={doctorPassword}
+                                    onChange={(e) => setDoctorPassword(e.target.value)}
+                                    required
+                                />
+                                {doctorError && <p className="error-message">{doctorError}</p>}
+                                <button className="flip-card__btn">Access Portal</button>
+                            </form>
                         </div>
-                        <div className="input-group">
-                            <label className="input-label">Password</label>
-                            <input
-                                className="custom-input"
-                                type="password"
-                                placeholder="••••••••"
-                                value={doctorPassword}
-                                onChange={(e) => setDoctorPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {doctorError && <div className="error-text">{doctorError}</div>}
-                        <button type="submit" className="login-btn">Sign In as Doctor</button>
-                    </form>
-                ) : (
-                    <form className="login-form" onSubmit={handlePatientLogin}>
-                        <div className="input-group">
-                            <label className="input-label">Email Address</label>
-                            <input
-                                className="custom-input"
-                                type="email"
-                                placeholder="you@example.com"
-                                value={patientEmail}
-                                onChange={(e) => setPatientEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="input-group">
-                            <label className="input-label">Password</label>
-                            <input
-                                className="custom-input"
-                                type="password"
-                                placeholder="••••••••"
-                                value={patientPassword}
-                                onChange={(e) => setPatientPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {patientError && <div className="error-text">{patientError}</div>}
-                        <button type="submit" className="login-btn">Sign In</button>
-                    </form>
-                )}
 
-                {/* Footer */}
-                <div className="login-footer">
-                    {role === 'patient' && (
-                        <div>
-                            Don't have an account?{' '}
-                            <Link to="/sign-up" className="footer-link">Sign up</Link>
+                        {/* BACK: PATIENT LOGIN (CLERK) */}
+                        <div className="flip-card__back">
+                            <div className="w-full flex justify-center">
+                                <SignIn
+                                    appearance={{
+                                        elements: {
+                                            rootBox: 'w-full',
+                                            card: 'bg-transparent shadow-none p-0 w-full',
+                                            headerTitle: 'text-white text-2xl font-bold mb-4',
+                                            headerSubtitle: 'text-slate-400 mb-6',
+                                            formButtonPrimary: 'bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 shadow-lg shadow-teal-500/30 border-0',
+                                            socialButtonsBlockButton: 'bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white',
+                                            socialButtonsBlockButtonText: 'text-white font-medium',
+                                            formFieldLabel: 'text-slate-300',
+                                            formFieldInput: 'bg-slate-900 border-slate-700 text-white placeholder-slate-500 focus:border-teal-500 focus:ring-teal-500/20',
+                                            footerActionLink: 'text-teal-400 hover:text-teal-300',
+                                            dividerLine: 'bg-slate-700',
+                                            dividerText: 'text-slate-500'
+                                        },
+                                        variables: {
+                                            colorPrimary: '#2dd4bf',
+                                            colorText: '#f8fafc',
+                                            colorTextSecondary: '#94a3b8',
+                                            colorBackground: 'transparent',
+                                            colorInputBackground: '#0f172a',
+                                            colorInputText: '#f8fafc',
+                                            colorInputBorder: '#334155'
+                                        }
+                                    }}
+                                    routing="path"
+                                    path="/sign-in"
+                                    signUpUrl="/sign-up"
+                                    forceRedirectUrl="/patient"
+                                />
+                            </div>
                         </div>
-                    )}
-                    {role === 'doctor' && (
-                        <div>
-                            <span className="text-slate-500">Need help? </span>
-                            <a href="#" className="footer-link">Contact IT Support</a>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                </label>
             </div>
         </div>
     );

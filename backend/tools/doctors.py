@@ -14,7 +14,8 @@ def list_doctors() -> dict:
                     "email": d.email,
                     "specialization": d.specialization.value,
                     "available_from": d.available_from.strftime("%H:%M"),
-                    "available_to": d.available_to.strftime("%H:%M")
+                    "available_to": d.available_to.strftime("%H:%M"),
+                    "phone_number": d.phone_number or "+919876543210" # Default for testing
                 }
                 for d in doctors
             ]

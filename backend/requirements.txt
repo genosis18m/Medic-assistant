@@ -27,3 +27,4 @@ python-dateutil==2.9.0
 # Twilio and JWT dependencies
 twilio==9.4.0
 python-jose[cryptography]==3.3.00
+reportlab==4.1.0

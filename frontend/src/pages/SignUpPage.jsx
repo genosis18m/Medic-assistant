@@ -22,6 +22,16 @@ function SignUpPage() {
                         elements: {
                             rootBox: 'mx-auto',
                             card: 'bg-slate-800/50 border border-slate-700/50 shadow-xl backdrop-blur-sm'
+                        },
+                        variables: {
+                            colorPrimary: '#2dd4bf',
+                            colorText: '#f8fafc',
+                            colorTextSecondary: '#94a3b8',
+                            colorBackground: '#1e293b',
+                            colorInputBackground: '#0f172a',
+                            colorInputText: '#f8fafc',
+                            colorInputBorder: '#334155',
+                            colorPageBackground: 'transparent'
                         }
                     }}
                     routing="path"
