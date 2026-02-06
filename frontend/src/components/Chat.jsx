@@ -5,11 +5,13 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 // Initial welcome quick actions
 const INITIAL_ACTIONS = ['Book Appointment', 'Check Availability', 'View My Appointments', 'Cancel Appointment']
 
-// Get next 2 days for date selection
+// Get next 2 days for date selection (tomorrow and day after)
 const getNextTwoDays = () => {
     const today = new Date()
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
+    const dayAfter = new Date(today)
+    dayAfter.setDate(dayAfter.getDate() + 2)
 
     const formatDate = (date) => {
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -18,8 +20,8 @@ const getNextTwoDays = () => {
     }
 
     return [
-        { label: `Today (${formatDate(today)})`, value: today.toISOString().split('T')[0] },
-        { label: `Tomorrow (${formatDate(tomorrow)})`, value: tomorrow.toISOString().split('T')[0] }
+        { label: `Tomorrow (${formatDate(tomorrow)})`, value: tomorrow.toISOString().split('T')[0] },
+        { label: `${formatDate(dayAfter)}`, value: dayAfter.toISOString().split('T')[0] }
     ]
 }
 
@@ -55,9 +57,9 @@ function Chat({ role = 'patient', userId, userEmail }) {
         const uniqueTimes = new Set()
 
         matches.forEach(match => {
-            let [, hour, minute, meridiem] = match
-            hour = parseInt(hour)
-            minute = parseInt(minute)
+            let [, hourStr, minuteStr, meridiem] = match
+            let hour = parseInt(hourStr)
+            const minute = minuteStr // Keep as string, already has 2 digits from regex
 
             // Convert to 12-hour format with AM/PM if not present
             if (!meridiem) {
@@ -66,7 +68,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 if (hour === 0) hour = 12
             }
 
-            uniqueTimes.add(`${hour}:${minute.padStart(2, '0')} ${meridiem.toUpperCase()}`)
+            uniqueTimes.add(`${hour}:${minute} ${meridiem.toUpperCase()}`)
         })
 
         return Array.from(uniqueTimes)
@@ -194,8 +196,8 @@ function Chat({ role = 'patient', userId, userEmail }) {
                     >
                         <div
                             className={`max-w-[70%] p-4 rounded-lg ${msg.role === 'user'
-                                    ? 'bg-teal-600 text-white'
-                                    : 'bg-white/10 text-white border border-white/20'
+                                ? 'bg-teal-600 text-white'
+                                : 'bg-white/10 text-white border border-white/20'
                                 }`}
                         >
                             <p className="whitespace-pre-wrap">{msg.content}</p>
