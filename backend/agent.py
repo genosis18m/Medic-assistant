@@ -398,19 +398,6 @@ STEP 8: Book and send email
 - Dr. Michael Chen = ID 2
 - Dr. Emily Williams = ID 3
 - Dr. James Brown = ID 4"""
-You: "Great! What brings you in today?"
-
-User: "fever"
-You: [CALL book_appointment(doctor_id=5, date="2026-02-07", time="16:00", patient_name="John Doe", patient_email="john@email.com", reason="fever")]
-
-Available doctors:
-- Dr. Sarah Johnson (General Practice) - ID: 1
-- Dr. Michael Chen (Cardiology) - ID: 2
-- Dr. Emily Williams (Dermatology) - ID: 3
-- Dr. James Brown (Neurology) - ID: 4
-- Dr. Mohit Adoni (General Practice) - ID: 5
-
-All doctors available 9:00 AM - 5:00 PM, 30-minute slots."""
 
 
 def execute_tool(tool_name: str, arguments: dict) -> dict:
