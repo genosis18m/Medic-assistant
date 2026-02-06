@@ -26,11 +26,7 @@ from tools.patient_history import (
     add_prescription,
     generate_patient_report
 )
-# Import list_doctors from main
-import sys
-import os
-sys.path.insert(0, os.path.dirname(__file__))
-from main import list_doctors
+from tools.doctors import list_doctors
 
 load_dotenv()
 

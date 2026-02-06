@@ -220,24 +220,10 @@ def chat_endpoint(request: ChatRequest) -> ChatResponse:
 
 
 @app.get("/doctors")
-def list_doctors() -> dict:
+def list_doctors_endpoint() -> dict:
     """List all available doctors."""
-    with get_session() as session:
-        from sqlmodel import select
-        doctors = session.exec(select(Doctor)).all()
-        return {
-            "doctors": [
-                {
-                    "id": d.id,
-                    "name": d.name,
-                    "email": d.email,
-                    "specialization": d.specialization.value,
-                    "available_from": d.available_from.strftime("%H:%M"),
-                    "available_to": d.available_to.strftime("%H:%M")
-                }
-                for d in doctors
-            ]
-        }
+    from tools.doctors import list_doctors
+    return list_doctors()
 
 
 @app.post("/doctors")
