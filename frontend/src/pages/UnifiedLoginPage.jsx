@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useSignIn } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './UnifiedLoginPage.css';
 
 const UnifiedLoginPage = () => {
-    const [isChecked, setIsChecked] = useState(false); // false = Doctor (Front), true = Patient (Back)
+    // Role state: 'doctor' or 'patient'
+    const [role, setRole] = useState('doctor');
     const navigate = useNavigate();
 
     // -- DOCTOR LOGIN STATE --
@@ -30,7 +31,6 @@ const UnifiedLoginPage = () => {
             'emily@clinic.com': { id: 3, name: 'Dr. Emily Williams' },
             'james@clinic.com': { id: 4, name: 'Dr. James Brown' },
             'adonimohit@gmail.com': { id: 5, name: 'Dr. Mohit Adoni' },
-            // Allow generic for testing
             'doctor@clinic.com': { id: 5, name: 'Dr. Mohit Adoni' }
         };
 
@@ -74,91 +74,106 @@ const UnifiedLoginPage = () => {
     };
 
     return (
-        <div className="wrapper bg-slate-900">
-            <div className="card-switch">
-                <label className="switch">
-                    {/* Checkbox controls the flip: Checked = Patient (Back), Unchecked = Doctor (Front) */}
-                    <input
-                        type="checkbox"
-                        className="toggle"
-                        checked={isChecked}
-                        onChange={(e) => setIsChecked(e.target.checked)}
-                    />
-                    <span className="slider"></span>
-                    <span className="card-side"></span>
+        <div className="login-wrapper">
+            <div className="login-card">
+                {/* Header */}
+                <div className="login-header">
+                    <svg className="logo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    <h1 className="login-title">Welcome back</h1>
+                    <p className="login-subtitle">Sign in to your account</p>
+                </div>
 
-                    <div className="flip-card__inner">
-                        {/* FRONT: DOCTOR LOGIN */}
-                        <div className="flip-card__front">
-                            <div className="logo-container">
-                                <svg className="w-10 h-10 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                </svg>
-                            </div>
-                            <div className="title">Doctor Portal</div>
-                            <form className="flip-card__form" onSubmit={handleDoctorLogin}>
-                                <input
-                                    className="flip-card__input"
-                                    name="email"
-                                    placeholder="Doctor Email"
-                                    type="email"
-                                    value={doctorEmail}
-                                    onChange={(e) => setDoctorEmail(e.target.value)}
-                                    required
-                                />
-                                <input
-                                    className="flip-card__input"
-                                    name="password"
-                                    placeholder="Password"
-                                    type="password"
-                                    value={doctorPassword}
-                                    onChange={(e) => setDoctorPassword(e.target.value)}
-                                    required
-                                />
-                                {doctorError && <p className="error-message">{doctorError}</p>}
-                                <button className="flip-card__btn">Access Portal</button>
-                            </form>
-                            <span className="helper-link">
-                                Tech Support? <a href="#">Contact Admin</a>
-                            </span>
-                        </div>
+                {/* Role Tabs */}
+                <div className="role-tabs">
+                    <button
+                        className={`role-tab ${role === 'doctor' ? 'active' : ''}`}
+                        onClick={() => setRole('doctor')}
+                    >
+                        Doctor Portal
+                    </button>
+                    <button
+                        className={`role-tab ${role === 'patient' ? 'active' : ''}`}
+                        onClick={() => setRole('patient')}
+                    >
+                        Patient Login
+                    </button>
+                </div>
 
-                        {/* BACK: PATIENT LOGIN */}
-                        <div className="flip-card__back">
-                            <div className="logo-container">
-                                <svg className="w-10 h-10 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                            </div>
-                            <div className="title">Patient Login</div>
-                            <form className="flip-card__form" onSubmit={handlePatientLogin}>
-                                <input
-                                    className="flip-card__input"
-                                    name="email"
-                                    placeholder="Your Email"
-                                    type="email"
-                                    value={patientEmail}
-                                    onChange={(e) => setPatientEmail(e.target.value)}
-                                    required
-                                />
-                                <input
-                                    className="flip-card__input"
-                                    name="password"
-                                    placeholder="Password"
-                                    type="password"
-                                    value={patientPassword}
-                                    onChange={(e) => setPatientPassword(e.target.value)}
-                                    required
-                                />
-                                {patientError && <p className="error-message">{patientError}</p>}
-                                <button className="flip-card__btn">Log in</button>
-                            </form>
-                            <span className="helper-link">
-                                New Patient? <a href="/sign-up">Create Account</a>
-                            </span>
+                {/* Forms */}
+                {role === 'doctor' ? (
+                    <form className="login-form" onSubmit={handleDoctorLogin}>
+                        <div className="input-group">
+                            <label className="input-label">Email Address</label>
+                            <input
+                                className="custom-input"
+                                type="email"
+                                placeholder="name@clinic.com"
+                                value={doctorEmail}
+                                onChange={(e) => setDoctorEmail(e.target.value)}
+                                required
+                            />
                         </div>
-                    </div>
-                </label>
+                        <div className="input-group">
+                            <label className="input-label">Password</label>
+                            <input
+                                className="custom-input"
+                                type="password"
+                                placeholder="••••••••"
+                                value={doctorPassword}
+                                onChange={(e) => setDoctorPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        {doctorError && <div className="error-text">{doctorError}</div>}
+                        <button type="submit" className="login-btn">Sign In as Doctor</button>
+                    </form>
+                ) : (
+                    <form className="login-form" onSubmit={handlePatientLogin}>
+                        <div className="input-group">
+                            <label className="input-label">Email Address</label>
+                            <input
+                                className="custom-input"
+                                type="email"
+                                placeholder="you@example.com"
+                                value={patientEmail}
+                                onChange={(e) => setPatientEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="input-group">
+                            <label className="input-label">Password</label>
+                            <input
+                                className="custom-input"
+                                type="password"
+                                placeholder="••••••••"
+                                value={patientPassword}
+                                onChange={(e) => setPatientPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        {patientError && <div className="error-text">{patientError}</div>}
+                        <button type="submit" className="login-btn">Sign In</button>
+                    </form>
+                )}
+
+                {/* Footer */}
+                <div className="login-footer">
+                    {role === 'patient' && (
+                        <div>
+                            Don't have an account?{' '}
+                            <Link to="/sign-up" className="footer-link">Sign up</Link>
+                        </div>
+                    )}
+                    {role === 'doctor' && (
+                        <div>
+                            <span className="text-slate-500">Need help? </span>
+                            <a href="#" className="footer-link">Contact IT Support</a>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
