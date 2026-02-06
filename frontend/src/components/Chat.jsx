@@ -78,49 +78,41 @@ function Chat({ role = 'patient', userId, userEmail }) {
     const parseSuggestedActions = (content) => {
         const lowerContent = content.toLowerCase()
 
-        // Check for date selection
+        // 1. Date Selection (PRIORITY)
+        // Correctly detect when bot asks for date (e.g., "When would you like", "Which date")
         if (lowerContent.includes('which date') || lowerContent.includes('what date') ||
-            (lowerContent.includes('date') && lowerContent.includes('appointment'))) {
+            lowerContent.includes('when would you like') || lowerContent.includes('book for')) {
             const dates = getNextTwoDays()
             return dates.map(d => d.label)
         }
 
-        // Check for time slots - EXTRACT FROM RESPONSE
+        // 2. Time Slots
         if (lowerContent.includes('available slots') || lowerContent.includes('available times') ||
             lowerContent.includes('what time') || lowerContent.includes('time works')) {
             const extractedSlots = extractTimeSlots(content)
             if (extractedSlots.length > 0) {
                 return extractedSlots
             }
-            // Fallback to default times if extraction fails
             return ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM']
         }
 
-        // Check for doctor selection questions
+        // 3. Doctor Selection
         if (lowerContent.includes('which doctor') || lowerContent.includes('what doctor') ||
-            lowerContent.includes('see a doctor') || lowerContent.includes('which one') ||
-            lowerContent.includes("i'd be happy") ||
-            (lowerContent.includes('doctor') && (lowerContent.includes('like to see') || lowerContent.includes('want to see') || lowerContent.includes('book with'))) ||
-            (lowerContent.includes('book') && lowerContent.includes('doctor'))) {
+            lowerContent.includes('see a doctor') || lowerContent.includes("i'd be happy") ||
+            (lowerContent.includes('doctor') && lowerContent.includes('like to see'))) {
             return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
         }
 
-        // Check for confirmation
+        // 4. Confirmation
         if (lowerContent.includes('confirm') || lowerContent.includes('is this correct') ||
             lowerContent.includes('yes or no')) {
             return ['Yes, confirm', 'No, cancel']
         }
 
-        // Check for doctor list (fallback)
-        if ((lowerContent.includes('doctor') || lowerContent.includes('available')) &&
-            (content.includes('Sarah') || content.includes('Mohit') || content.includes('ID:'))) {
-            return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
-        }
-
-        // Check for symptoms
-        if (lowerContent.includes('symptom') || lowerContent.includes('issue') ||
-            lowerContent.includes('brought you') || lowerContent.includes('reason for visit')) {
-            return ['Fever', 'Headache', 'Cough', 'Back Pain', 'Stomach Ache', 'Other']
+        // 5. Symptoms/Reason
+        if (lowerContent.includes('symptom') || lowerContent.includes('reason') ||
+            lowerContent.includes('brings you in')) {
+            return ['Fever', 'Headache', 'Cough', 'Stomach Ache', 'General Checkup']
         }
 
         return []
