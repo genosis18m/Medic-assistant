@@ -480,9 +480,69 @@ def chat(
         )
         
         assistant_message = response.choices[0].message
-        print(f"📊 Tools used in this turn: {', '.join(tools_used)}")
-    
-    return final_response, conversation_history
+        tools_used = []
+        
+        # Check if the model wants to call tools
+        while assistant_message.tool_calls:
+            # Add assistant's tool call request to history
+            conversation_history.append({
+                "role": "assistant",
+                "content": assistant_message.content,
+                "tool_calls": [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments
+                        }
+                    }
+                    for tc in assistant_message.tool_calls
+                ]
+            })
+            
+            # Execute each tool call
+            for tool_call in assistant_message.tool_calls:
+                function_name = tool_call.function.name
+                try:
+                    arguments = json.loads(tool_call.function.arguments)
+                except json.JSONDecodeError:
+                    arguments = {}
+                
+                print(f"🔧 Executing tool: {function_name}")
+                
+                # Execute tool
+                result = execute_tool(function_name, arguments)
+                tools_used.append(function_name)
+                
+                # Add tool result to history
+                conversation_history.append({
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": function_name,
+                    "content": json.dumps(result)
+                })
+            
+            # Get next response from model
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=conversation_history,
+                tools=tools,
+                tool_choice="auto"
+            )
+            assistant_message = response.choices[0].message
+            
+        # Add final response to history
+        final_response = assistant_message.content or ""
+        conversation_history.append({
+            "role": "assistant",
+            "content": final_response
+        })
+        
+        if tools_used:
+             print(f"📊 Tools used: {', '.join(tools_used)}")
+             
+        return final_response, conversation_history
 
     except Exception as e:
         import traceback
