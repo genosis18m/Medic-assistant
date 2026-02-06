@@ -30,12 +30,23 @@ function Chat({ role = 'patient', userId, userEmail }) {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
-    // Parse suggested actions from bot response - IMPROVED
+    // Parse suggested actions from bot response - AGGRESSIVE DETECTION
     const parseSuggestedActions = (content) => {
         const lowerContent = content.toLowerCase()
 
+        // Check for doctor selection questions - HIGHEST PRIORITY
+        if (lowerContent.includes('which doctor') ||
+            lowerContent.includes('what doctor') ||
+            lowerContent.includes('see a doctor') ||
+            lowerContent.includes('which one') ||
+            lowerContent.includes("i'd be happy") ||
+            (lowerContent.includes('doctor') && (lowerContent.includes('like to see') || lowerContent.includes('want to see'))) ||
+            (lowerContent.includes('book') && lowerContent.includes('doctor'))) {
+            return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
+        }
+
         // Check for time slots
-        if (lowerContent.includes('time') || lowerContent.includes('9:00 am') || lowerContent.includes('available slots')) {
+        if (lowerContent.includes('time') || lowerContent.includes('9:00 am') || lowerContent.includes('available slots') || lowerContent.includes('what time')) {
             return ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM']
         }
 
@@ -44,14 +55,14 @@ function Chat({ role = 'patient', userId, userEmail }) {
             return ['Yes, confirm', 'No, cancel']
         }
 
-        // Check for doctor selection - STRONG DETECTION
-        if (lowerContent.includes('doctor') &&
-            (lowerContent.includes('available') || lowerContent.includes('following') || content.includes('ID:'))) {
+        // Check for doctor list (fallback for when AI lists doctors)
+        if ((lowerContent.includes('doctor') || lowerContent.includes('available')) &&
+            (content.includes('Sarah') || content.includes('Mohit') || content.includes('ID:'))) {
             return ['Dr. Mohit Adoni', 'Dr. Sarah Johnson', 'Dr. Michael Chen', 'Dr. Emily Williams', 'Dr. James Brown']
         }
 
         // Check for symptoms
-        if (lowerContent.includes('symptom') || lowerContent.includes('issue') || lowerContent.includes('brought you')) {
+        if (lowerContent.includes('symptom') || lowerContent.includes('issue') || lowerContent.includes('brought you') || lowerContent.includes('reason for visit')) {
             return ['Fever', 'Headache', 'Cough', 'Back Pain', 'Stomach Ache', 'Other']
         }
 
