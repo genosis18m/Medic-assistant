@@ -5,7 +5,7 @@ import { UserButton } from '@clerk/clerk-react'
 import Loader from '../components/Loader'
 import LogoutButton from '../components/LogoutButton'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : (import.meta.env.VITE_API_URL || 'http://localhost:8000')
 
 function DoctorDashboardPage({ doctorId = 5, userEmail }) {
     const navigate = useNavigate()
@@ -14,6 +14,7 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
     const [appointments, setAppointments] = useState([])
     const [stats, setStats] = useState({ today: 0, thisWeek: 0, total: 0 })
     const [loading, setLoading] = useState(true)
+    const [integrationStatus, setIntegrationStatus] = useState(null)
 
     const doctors = [
         { id: 1, name: 'Dr. Sarah Johnson', specialty: 'General Practice' },
@@ -26,6 +27,20 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
     useEffect(() => {
         fetchAppointments()
     }, [selectedDoctor])
+
+    useEffect(() => {
+        const fetchIntegrations = async () => {
+            try {
+                const res = await fetch(`${API_URL}/integrations/status`)
+                if (res.ok) {
+                    const data = await res.json()
+                    setIntegrationStatus(data)
+                }
+            } catch (e) {
+            }
+        }
+        fetchIntegrations()
+    }, [])
 
     const fetchAppointments = async () => {
         try {
@@ -154,6 +169,12 @@ function DoctorDashboardPage({ doctorId = 5, userEmail }) {
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-6 py-8">
+                {integrationStatus && (!integrationStatus.calendar_enabled || !integrationStatus.slack_enabled || !integrationStatus.telegram_enabled) && (
+                    <div className="mb-4 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                        Some reporting integrations (Calendar, Slack, or Telegram) are not fully configured. You can still see
+                        local stats and appointments, but external notifications or reports may be skipped.
+                    </div>
+                )}
                 {/* Doctor Selector */}
                 <div className="mb-8 bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
                     <div>

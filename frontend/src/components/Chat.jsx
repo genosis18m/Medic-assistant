@@ -1,6 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// In dev, use Vite proxy (/api -> backend :8000) to avoid CORS and connection issues
+const API_URL = import.meta.env.DEV
+    ? (import.meta.env.VITE_API_URL || '/api')
+    : (import.meta.env.VITE_API_URL || 'http://localhost:8000')
 
 // Initial welcome quick actions
 const INITIAL_ACTIONS = ['Book Appointment', 'Check Availability', 'View My Appointments', 'Cancel Appointment']
@@ -26,7 +29,7 @@ const getNextTwoDays = () => {
     ]
 }
 
-function Chat({ role = 'patient', userId, userEmail }) {
+const Chat = forwardRef(({ role = 'patient', userId, userEmail }, ref) => {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -43,46 +46,30 @@ function Chat({ role = 'patient', userId, userEmail }) {
         { id: 5, name: 'Dr. Mohit Adoni (General)' }
     ]
 
+    const clearChat = () => {
+        setMessages([])
+        setSessionId(null)
+        if (role === 'doctor') {
+            setSuggestedActions(['Today\'s Schedule', 'Weekly Report', 'Patient Stats'])
+        } else {
+            setSuggestedActions(INITIAL_ACTIONS)
+        }
+        localStorage.removeItem('chat_session_id')
+    }
+
+    useImperativeHandle(ref, () => ({
+        clearChat
+    }))
+
     // Initialize messages based on role
-    // Initialize messages and session
     useEffect(() => {
         const loadChat = async () => {
-            // Try to recover session from local storage
-            let currentSessionId = localStorage.getItem('chat_session_id')
+            // User requested fresh chat on every load. 
+            // Intentionally invalidating session to start fresh
+            setSessionId(null)
+            setMessages([])
 
-            // If we have a session, try to fetch history
-            if (currentSessionId) {
-                try {
-                    const response = await fetch(`${API_URL}/chat/history?session_id=${currentSessionId}`)
-                    if (response.ok) {
-                        const data = await response.json()
-                        if (data.history && data.history.length > 0) {
-                            setSessionId(currentSessionId)
-                            // Transform backend history format to frontend messages
-                            // Backend: [{role: 'user', parts: [...]}, ...]
-                            // Frontend: [{role: 'user', content: '...'}, ...]
-                            const formattedMessages = data.history.map(msg => ({
-                                role: msg.role,
-                                content: typeof msg.parts[0] === 'string' ? msg.parts[0] : msg.parts[0].text
-                            }))
-                            setMessages(formattedMessages)
-                            return // Exit if history loaded
-                        }
-                    }
-                } catch (e) {
-                    console.error("Failed to load history:", e)
-                }
-            }
-
-            // Fallback: Start New Chat
-            if (messages.length === 0) {
-                const initialMsg = role === 'doctor'
-                    ? "👨‍⚕️ Welcome! I can help you with reports, schedules, and patient stats. Who are you assisting?"
-                    : "👋 Hello! I'm your Medical Assistant. How can I help you today?"
-
-                setMessages([{ role: 'assistant', content: initialMsg }])
-            }
-
+            // Set suggestions based on role
             if (role === 'doctor') {
                 setSuggestedActions(['Today\'s Schedule', 'Weekly Report', 'Patient Stats'])
             } else {
@@ -197,7 +184,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
                 const data = await response.json()
                 const assistantMessage = {
                     role: 'assistant',
-                    content: data.response || 'I received your message.'
+                    content: (data.response && data.response.trim()) ? data.response : 'I’m still processing that. Please try again in a moment or rephrase your request.'
                 }
                 setMessages(prev => [...prev, assistantMessage])
                 setSessionId(data.session_id)
@@ -218,11 +205,11 @@ function Chat({ role = 'patient', userId, userEmail }) {
             }
         } catch (error) {
             console.error('Chat error:', error)
-            const errorMessage = {
-                role: 'assistant',
-                content: `❌ Backend error: ${error.message}. Make sure backend is running on ${API_URL}`
-            }
-            setMessages(prev => [...prev, errorMessage])
+            const isNetworkError = error?.message === 'Failed to fetch' || error?.name === 'TypeError'
+            const content = isNetworkError
+                ? "Can't connect to the server. Start the backend in a terminal: from project root run ./start_backend.sh (or: cd backend && source ../venv/bin/activate && uvicorn main:app --reload --port 8000), then try again."
+                : `Something went wrong: ${error.message}. Try again.`
+            setMessages(prev => [...prev, { role: 'assistant', content: `❌ ${content}` }])
         } finally {
             setIsLoading(false)
         }
@@ -233,7 +220,7 @@ function Chat({ role = 'patient', userId, userEmail }) {
     }
 
     return (
-        <div className="flex flex-col h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="relative flex flex-col h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
             {/* Doctor Context Switcher */}
             {role === 'doctor' && (
                 <div className="glass-panel border-b border-white/10 p-2 px-4 flex items-center justify-between backdrop-blur-md z-10">
@@ -340,6 +327,8 @@ function Chat({ role = 'patient', userId, userEmail }) {
             </div>
         </div>
     )
-}
+})
+
+Chat.displayName = 'Chat'
 
 export default Chat

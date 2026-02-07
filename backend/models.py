@@ -51,8 +51,8 @@ class Doctor(SQLModel, table=True):
     name: str = Field(index=True)
     email: str = Field(unique=True)
     specialization: Specialization = Field(default=Specialization.GENERAL)
-    available_from: time = Field(default=time(9, 0))  # 9 AM
-    available_to: time = Field(default=time(17, 0))   # 5 PM
+    available_from: time = Field(default=time(9, 0))   # 9 AM
+    available_to: time = Field(default=time(18, 0))   # 6 PM
     phone_number: Optional[str] = Field(default=None)  # For WhatsApp notifications
     clerk_user_id: Optional[str] = Field(default=None, index=True)  # Clerk authentication
     calendar_id: Optional[str] = Field(default=None)  # Google Calendar ID

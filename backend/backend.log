@@ -1,2 +1,167 @@
-Command 'uvicorn' not found, but can be installed with:
-sudo apt install uvicorn
+INFO:     Will watch for changes in these directories: ['/home/mohit-adoni/Doctor-Assistant/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [15795] using WatchFiles
+INFO:     Started server process [15799]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+✅ BACKEND STARTUP: Email System Enabled = True
+
+INFO:     127.0.0.1:42948 - "GET /chat/history?session_id=7d5fefa7-4761-45cf-8300-a6405d553ef7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42948 - "GET /chat/history?session_id=7d5fefa7-4761-45cf-8300-a6405d553ef7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42956 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.OperationalError: SSL connection has been closed unexpectedly
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1138, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/fastapi/routing.py", line 115, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/fastapi/routing.py", line 101, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/fastapi/routing.py", line 355, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/fastapi/routing.py", line 245, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/starlette/concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/backend/main.py", line 360, in list_all_appointments
+    return list_appointments(
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/backend/tools/booking.py", line 309, in list_appointments
+    appointments = session.exec(statement).all()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlmodel/orm/session.py", line 81, in exec
+    results = super().execute(
+              ^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2249, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/mohit-adoni/Doctor-Assistant/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) SSL connection has been closed unexpectedly
+
+[SQL: SELECT appointment.id, appointment.doctor_id, appointment.patient_id, appointment.patient_name, appointment.patient_email, appointment.appointment_date, appointment.appointment_time, appointment.reason, appointment.symptoms, appointment.status, appointment.visit_notes, appointment.diagnosis, appointment.prescription, appointment.google_event_id, appointment.email_sent, appointment.created_at, appointment.updated_at 
+FROM appointment 
+WHERE appointment.patient_email = %(patient_email_1)s ORDER BY appointment.appointment_date, appointment.appointment_time]
+[parameters: {'patient_email_1': 'momoochan.ofc@gmail.com'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     127.0.0.1:42948 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42608 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51330 - "GET /chat/history?session_id=7d5fefa7-4761-45cf-8300-a6405d553ef7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51344 - "GET /chat/history?session_id=7d5fefa7-4761-45cf-8300-a6405d553ef7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51330 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51344 - "OPTIONS /chat HTTP/1.1" 200 OK
+🤖 Raw LLM Response: None
+🛠️ Tool Calls: [ChatCompletionMessageToolCall(id='cmb8agr9s', function=Function(arguments='{"check_date":"2026-02-07"}', name='check_availability'), type='function')]
+🔧 Executing tool (Native): check_availability
+📊 Tools used: check_availability
+INFO:     127.0.0.1:44352 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51330 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57620 - "GET /chat/history?session_id=b1559cca-c7ec-4d7a-bf5a-7e78911ff01e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57624 - "GET /chat/history?session_id=b1559cca-c7ec-4d7a-bf5a-7e78911ff01e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57620 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57620 - "GET /appointments?patient_email=momoochan.ofc@gmail.com HTTP/1.1" 200 OK
+🤖 Raw LLM Response: When would you like to come in?
+
+[[SUGGESTIONS: Tomorrow, Next week, Pick a specific date]]
+🛠️ Tool Calls: None
+⚠️ Failed to save prompt history: (psycopg2.OperationalError) SSL connection has been closed unexpectedly
+
+[SQL: INSERT INTO prompthistory (session_id, role, user_prompt, assistant_response, tools_used, created_at) VALUES (%(session_id)s, %(role)s, %(user_prompt)s, %(assistant_response)s, %(tools_used)s, %(created_at)s) RETURNING prompthistory.id]
+[parameters: {'session_id': 'b1559cca-c7ec-4d7a-bf5a-7e78911ff01e', 'role': 'PATIENT', 'user_prompt': 'Book Appointment', 'assistant_response': 'When would you like to come in?', 'tools_used': None, 'created_at': datetime.datetime(2026, 2, 6, 18, 15, 9, 429325)}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     127.0.0.1:43546 - "POST /chat HTTP/1.1" 200 OK
+🤖 Raw LLM Response: None
+🛠️ Tool Calls: [ChatCompletionMessageToolCall(id='jeq7315ya', function=Function(arguments='null', name='list_doctors'), type='function')]
+🔧 Executing tool (Native): list_doctors
+📊 Tools used: list_doctors
+INFO:     127.0.0.1:43546 - "POST /chat HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'main.py', 'agent.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [15799]
+INFO:     Started server process [32659]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.

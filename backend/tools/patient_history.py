@@ -11,7 +11,7 @@ from database import get_session
 def get_patient_history(patient_email: str, limit: int = 10) -> Dict[str, Any]:
     """Get complete visit history for a patient."""
     try:
-        with next(get_session()) as session:
+        with get_session() as session:
             # Get all visits for this patient
             statement = select(Visit).where(
                 Visit.patient_email == patient_email
@@ -65,7 +65,7 @@ def add_visit_notes(
 ) -> Dict[str, Any]:
     """Add or update diagnosis and notes for a visit."""
     try:
-        with next(get_session()) as session:
+        with get_session() as session:
             # Find the visit by appointment_id
             statement = select(Visit).where(Visit.appointment_id == appointment_id)
             visit = session.exec(statement).first()
@@ -106,7 +106,7 @@ def add_prescription(
 ) -> Dict[str, Any]:
     """Add a prescription to a visit."""
     try:
-        with next(get_session()) as session:
+        with get_session() as session:
             # Get visit to verify it exists and get patient name
             visit = session.get(Visit, visit_id)
             if not visit:

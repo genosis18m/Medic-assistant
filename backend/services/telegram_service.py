@@ -63,8 +63,8 @@ def generate_pdf_report(doctor_name: str, appointments: list, report_date: str) 
     buffer.seek(0)
     return buffer
 
-# Mock database of Phone Numbers to Telegram Chat IDs
-# in a real app, this would be in the database after the user links their account
+# Map phone numbers to Telegram chat_id. To link a doctor: they send /start to the bot
+# (e.g. @Doctor_AssistBot); the bot stores their chat_id keyed by phone; we look up here.
 PHONE_TO_CHAT_ID = {
     "9876543210": "1705662369", # Example ID for Dr. Mohit
     "5551234567": "1705662369", # Dr. Michael Chen (using same ID for testing)
@@ -109,6 +109,9 @@ async def send_telegram_pdf(chat_id: str = None, phone_number: str = None, pdf_f
             
     except Exception as e:
         print(f"❌ Telegram Error: {e}")
+        error_msg = str(e)
+        if "400" in error_msg:
+             return {"success": False, "error": f"Telegram API Error (400) for Chat ID {chat_id}. Ensure the user has started the bot (@Doctor_AssistBot). Raw error: {error_msg}"}
         return {"success": False, "error": str(e)}
 
 async def send_telegram_message(chat_id: str, text: str):

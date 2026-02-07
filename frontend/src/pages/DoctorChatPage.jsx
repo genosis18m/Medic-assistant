@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import Chat from '../components/Chat'
 import { UserButton, useUser } from '@clerk/clerk-react'
+import { useRef } from 'react'
 
 function DoctorChatPage() {
     const navigate = useNavigate()
     const { user } = useUser()
+    const chatRef = useRef(null)
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -30,11 +32,19 @@ function DoctorChatPage() {
                             <p className="text-purple-100 text-sm">💬 AI Assistant</p>
                         </div>
                     </div>
-                    <UserButton afterSignOutUrl="/sign-in" />
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => chatRef.current?.clearChat()}
+                            className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded transition-colors"
+                        >
+                            Clear Chat
+                        </button>
+                        <UserButton afterSignOutUrl="/sign-in" />
+                    </div>
                 </div>
             </header>
             <main className="flex-1">
-                <Chat role="doctor" userId={user?.id} userEmail={user?.primaryEmailAddress?.emailAddress} />
+                <Chat ref={chatRef} role="doctor" userId={user?.id} userEmail={user?.primaryEmailAddress?.emailAddress} />
             </main>
         </div>
     )

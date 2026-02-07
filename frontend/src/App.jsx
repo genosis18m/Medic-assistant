@@ -205,7 +205,16 @@ function App() {
                 />
 
                 {/* Default and catch-all */}
-                <Route path="/" element={<Navigate to="/sign-in" replace />} />
+                <Route path="/" element={
+                    <>
+                        <SignedIn>
+                            <Navigate to="/patient" replace />
+                        </SignedIn>
+                        <SignedOut>
+                            <Navigate to="/sign-in" replace />
+                        </SignedOut>
+                    </>
+                } />
                 <Route path="*" element={<Navigate to="/sign-in" replace />} />
             </Routes>
         </BrowserRouter>
@@ -216,7 +225,7 @@ function App() {
 function MainAppRouter() {
     const { user } = useUser()
     const userEmail = user?.primaryEmailAddress?.emailAddress
-    const canAccessDoctor = ['doctor12345@gmail.com', 'adonimohit@gmail.com'].includes(userEmail)
+    const canAccessDoctor = ['doctor12345@gmail.com', 'adonimohit@gmail.com', 'doctor@clinic.com', 'momoochan.ofc@gmail.com'].includes(userEmail)
     const doctorId = 5 // Dr. Mohit Adoni for demo doctors
 
     return (

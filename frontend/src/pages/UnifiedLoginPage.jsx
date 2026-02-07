@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SignIn } from '@clerk/clerk-react';
+import { SignIn, useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import './UnifiedLoginPage.css';
 
@@ -7,6 +7,21 @@ const UnifiedLoginPage = () => {
     // isChecked = true -> Patient (Back), false -> Doctor (Front)
     const [isChecked, setIsChecked] = useState(false);
     const navigate = useNavigate();
+    const { isSignedIn, user, isLoaded } = useUser();
+
+    // Auto-redirect if already signed in
+    React.useEffect(() => {
+        if (isLoaded && isSignedIn) {
+            // Check if user is a doctor
+            const email = user?.primaryEmailAddress?.emailAddress;
+            const isDoctor = ['doctor12345@gmail.com', 'adonimohit@gmail.com', 'doctor@clinic.com'].includes(email);
+            if (isDoctor) {
+                navigate('/doctor/dashboard');
+            } else {
+                navigate('/patient');
+            }
+        }
+    }, [isLoaded, isSignedIn, user, navigate]);
 
     // -- DOCTOR LOGIN STATE --
     const [doctorEmail, setDoctorEmail] = useState('');

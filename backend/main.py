@@ -9,7 +9,7 @@ Features:
 import os
 import json
 from contextlib import asynccontextmanager
-from datetime import date
+from datetime import date, time
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -18,6 +18,8 @@ from typing import Optional, Literal
 from database import create_db_and_tables, get_session
 from models import Doctor, Specialization, PromptHistory, UserRole
 from services.email_service import EMAIL_ENABLED
+from services.google_calendar import CALENDAR_ENABLED
+from services.slack_service import SLACK_ENABLED
 
 print(f"\n✅ BACKEND STARTUP: Email System Enabled = {EMAIL_ENABLED}\n")
 
@@ -122,6 +124,50 @@ async def lifespan(app: FastAPI):
             session.add(chen)
             session.commit()
             print("✓ Updated Dr. Michael Chen with phone number")
+
+        # Working hours 9 AM–6 PM: set any doctor ending at 17:00 to 18:00
+        six_pm = time(18, 0)
+        for doc in session.exec(select(Doctor)).all():
+            if doc.available_to < six_pm:
+                doc.available_to = six_pm
+                session.add(doc)
+        session.commit()
+
+    # ------------------------------------------------------------------
+    # Startup checks for Google Calendar / Gmail credentials
+    # These must never crash the app – only log clear warnings.
+    # ------------------------------------------------------------------
+    try:
+        backend_dir = os.path.dirname(__file__)
+        credentials_path = os.path.join(backend_dir, "credentials.json")
+        token_path = os.path.join(backend_dir, "token.json")
+
+        if not CALENDAR_ENABLED:
+            print(
+                "⚠️ Google Calendar disabled: missing GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET. "
+                "Calendar events will not be created."
+            )
+
+        missing_files = []
+        if not os.path.exists(credentials_path):
+            missing_files.append("credentials.json")
+        if not os.path.exists(token_path):
+            missing_files.append("token.json")
+        token_pickle = os.path.join(backend_dir, "token.pickle")
+        if not os.path.exists(token_pickle):
+            missing_files.append("token.pickle")
+
+        if missing_files:
+            print(
+                "⚠️ Google Calendar/Gmail credentials missing in backend/: "
+                + ", ".join(missing_files)
+                + ". Integrations depending on Google APIs will be skipped, "
+                "but the backend will continue running."
+            )
+        else:
+            print("✅ Google Calendar/Gmail credential files detected (credentials.json, token.json, token.pickle)")
+    except Exception as creds_e:
+        print(f"⚠️ Failed to run Google credentials startup check: {creds_e}")
     
     yield
 
@@ -179,11 +225,41 @@ async def chat_endpoint(request: ChatRequest) -> ChatResponse:
     session_id = request.session_id or str(uuid.uuid4())
     
     # Get existing conversation context or start new
-    session_data = conversation_sessions.get(session_id, {
-        "history": None,
-        "role": request.role
-    })
-    
+    session_data = conversation_sessions.get(session_id)
+
+    if not session_data:
+        # Try to restore from database (Persistence Fix)
+        with get_session() as session:
+            from sqlmodel import select
+            # Get latest role from history
+            statement = select(PromptHistory).where(PromptHistory.session_id == session_id).order_by(PromptHistory.created_at)
+            history_entries = session.exec(statement).all()
+            
+            if history_entries:
+                # Reconstruct history
+                restored_history = []
+                # Also try to restore system context - slightly tricky without storing it explicitly, 
+                # but agent.py handles re-injection if history is present.
+                
+                for entry in history_entries:
+                    restored_history.append({"role": "user", "content": entry.user_prompt})
+                    restored_history.append({"role": "assistant", "content": entry.assistant_response})
+                
+                # Restore to memory
+                session_data = {
+                    "history": restored_history,
+                    "role": history_entries[-1].role.value # Use role from last interaction
+                }
+                conversation_sessions[session_id] = session_data
+                print(f"🔄 Restored session {session_id} from DB with {len(restored_history)} messages")
+
+    if not session_data:
+        session_data = {
+            "history": None,
+            "role": request.role
+        }
+        conversation_sessions[session_id] = session_data
+
     # Update role if changed
     if session_data["role"] != request.role:
         # Role changed, reset conversation
@@ -223,6 +299,14 @@ async def chat_endpoint(request: ChatRequest) -> ChatResponse:
                 if hasattr(doctor, 'phone_number') and doctor.phone_number:
                     user_context += f" Phone: {doctor.phone_number}"
     
+    elif request.role == "patient":
+        # Add patient context
+        user_context = f"SYSTEM CONTEXT: You are assisting a patient."
+        if request.user_email:
+            user_context += f" Patient Email: {request.user_email}"
+        if request.user_id:
+            user_context += f" Patient ID: {request.user_id}"
+    
     try:
         response, updated_history, suggested_actions = await chat(
             user_message=request.message,
@@ -234,6 +318,11 @@ async def chat_endpoint(request: ChatRequest) -> ChatResponse:
         # Save updated session
         session_data["history"] = updated_history
         conversation_sessions[session_id] = session_data
+
+        try:
+            print(f"💬 Chat session={session_id} role={request.role} tools_used={len([m for m in updated_history if m.get('role') == 'tool'])} suggestions={len(suggested_actions)}")
+        except Exception:
+            pass
         
         # Optionally save to prompt history (for analytics)
         try:
@@ -273,8 +362,25 @@ def get_chat_history(session_id: str) -> dict:
     # Try to fetch from DB if not in memory (optional retention)
     from sqlmodel import select
     with get_session() as session:
-        # This is a simplified fetch - real apps might reconstruct from PromptHistory
-        # For now, return empty if not in active memory
+        statement = select(PromptHistory).where(PromptHistory.session_id == session_id).order_by(PromptHistory.created_at)
+        history_entries = session.exec(statement).all()
+        
+        if history_entries:
+            history = []
+            for entry in history_entries:
+                history.append({"role": "user", "content": entry.user_prompt})
+                history.append({"role": "assistant", "content": entry.assistant_response})
+            
+            # Optionally restore to memory for faster subsequent access
+            conversation_sessions[session_id] = {
+                "history": history,
+                "role": history_entries[-1].role.value
+            }
+            return {
+                "history": history,
+                "role": history_entries[-1].role.value
+            }
+
         return {"history": [], "role": "patient"}
 
 
@@ -339,6 +445,26 @@ def generate_doctor_report(request: ReportRequest) -> dict:
     return result
 
 
+@app.get("/integrations/status")
+def get_integrations_status() -> dict:
+    """Return the current status of external integrations.
+
+    Used by the frontend to show small UX hints when features
+    like Google Calendar, Slack, or Telegram are not configured.
+    """
+    telegram_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    google_client_id = os.getenv("GOOGLE_CLIENT_ID")
+    google_client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+
+    return {
+        "email_enabled": bool(EMAIL_ENABLED),
+        "calendar_enabled": bool(CALENDAR_ENABLED),
+        "slack_enabled": bool(SLACK_ENABLED),
+        "telegram_enabled": bool(telegram_token),
+        "google_env_configured": bool(google_client_id and google_client_secret),
+    }
+
+
 @app.get("/appointments")
 def list_all_appointments(
     doctor_id: Optional[int] = None,
@@ -346,15 +472,18 @@ def list_all_appointments(
     date_str: Optional[str] = None,
     status: Optional[str] = None
 ) -> dict:
-    """List appointments with optional filters."""
+    """List appointments with optional filters. Always returns { success, total, appointments }."""
     from tools.booking import list_appointments
-    
-    return list_appointments(
-        patient_email=patient_email,
-        doctor_id=doctor_id,
-        date_str=date_str,
-        status=status
-    )
+    try:
+        return list_appointments(
+            patient_email=patient_email,
+            doctor_id=doctor_id,
+            date_str=date_str,
+            status=status
+        )
+    except Exception as e:
+        print(f"⚠️ list_appointments error: {e}")
+        return {"success": False, "total": 0, "appointments": [], "error": str(e)}
 
 
 @app.get("/stats")
