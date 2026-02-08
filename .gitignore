@@ -11,3 +11,6 @@ backend/token.pickle
 
 # Frontend build
 frontend/dist/
+
+backend.log
+DEPLOYMENT.md

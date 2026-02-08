@@ -5,6 +5,7 @@ sqlmodel==0.0.22
 groq==0.13.0
 python-dotenv==1.0.1
 openai>=1.0.0
+gunicorn>=21.2.0
 
 # PostgreSQL Support
 psycopg2-binary==2.9.10
