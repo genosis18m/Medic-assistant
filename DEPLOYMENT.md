@@ -76,7 +76,12 @@ This guide provides a quick setup for deploying the Doctor Assistant application
 3.  Click **New +** -> **Blueprint**.
 4.  Connect your repository.
 5.  Render will auto-detect `render.yaml` and create both services.
-6.  **Important**: Add `OPENAI_API_KEY` in the dashboard for the backend service.
+6.  **Important**: 
+    - Add `OPENAI_API_KEY` in the dashboard for the backend service.
+    - Once the backend is live, copy its URL (e.g., `https://doctor-assistant-backend.onrender.com`).
+    - Go to the **Variables** tab of the **frontend** service.
+    - Add `VITE_API_URL` with the backend URL.
+    - Trigger a manual deploy of the frontend if needed.
 
 ### Option B: Railway
 1.  Install Railway CLI: `npm i -g @railway/cli`
