@@ -21,7 +21,5 @@ services:
       - key: NODE_VERSION
         value: 18.x
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: doctor-assistant-backend
-          property: url
+        sync: false # Set this to your backend URL (e.g., https://doctor-assistant-backend.onrender.com)
+
