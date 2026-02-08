@@ -27,13 +27,17 @@ An AI-powered medical appointment booking and reporting system using **FastAPI**
 ### Doctor Access
 | Email | Password | Notes |
 |-------|----------|-------|
-| `doctor12345@gmail.com` | `doctor` | General doctor access |
-| `adonimohit@gmail.com` | (your password) | Admin doctor access |
+| `doctor@clinic.com` | `password` | **Test Account** (Bypasses Clerk) |
+| `doctor12345@gmail.com` | (Clerk) | Dr. Sarah Johnson |
+| `adonimohit@gmail.com` | (Clerk) | Dr. Mohit Adoni |
 
 ### Patient Access
-Any email can access patient mode.
+| Email | Password | Notes |
+|-------|----------|-------|
+| `patient@clinic.com` | (None) | **Test Account** (Click "Use Test Patient Account") |
+| Any Email | (Clerk) | Sign up required |
 
-> **Note**: Login is via Clerk authentication. Create an account with the doctor emails above to access doctor features.
+> **Note**: For "Test Accounts", no sign-up is required. Just click the link/button on the login page.
 
 ## 🔧 13 MCP Tools
 

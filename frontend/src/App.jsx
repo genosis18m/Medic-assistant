@@ -148,6 +148,10 @@ function App() {
     const simpleDoctorAuth = localStorage.getItem('simpleDoctorAuth')
     const simpleDoctorData = simpleDoctorAuth ? JSON.parse(simpleDoctorAuth) : null
 
+    // Check for simple patient authentication
+    const simplePatientAuth = localStorage.getItem('simplePatientAuth')
+    const simplePatientData = simplePatientAuth ? JSON.parse(simplePatientAuth) : null
+
     if (simpleDoctorData) {
         // Simple doctor is logged in - render doctor dashboard
         return (
@@ -163,6 +167,42 @@ function App() {
                 </Routes>
             </BrowserRouter>
 
+        )
+    }
+
+    if (simplePatientData) {
+        // Simple patient login
+        const handleLogout = () => {
+            localStorage.removeItem('simplePatientAuth')
+            window.location.reload()
+        }
+
+        // Mock user object matching Clerk structure partially
+        const mockUser = {
+            id: 'test-patient-id',
+            primaryEmailAddress: { emailAddress: simplePatientData.email },
+            fullName: 'Test Patient'
+        }
+
+        return (
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<PatientPage mockUser={mockUser} />} />
+                    <Route path="/patient" element={<PatientPage mockUser={mockUser} />} />
+                    <Route path="*" element={<Navigate to="/patient" replace />} />
+                </Routes>
+                {/* 
+                   Note: PatientPage has its own header with UserButton. 
+                   We might need to monkey-patch UserButton behavior or just accept it might look broken?
+                   Actually PatientPage renders Header with UserButton.
+                   UserButton will try to use Clerk. 
+                   If no Clerk user, UserButton might be empty or error?
+                   Let's hope it handles null user gracefully or we might need to modify PatientPage header too.
+                   Wait, PatientPage uses <LogoutButton> and <UserButton>.
+                   If mockUser is present, UserButton is useless.
+                   I should probably update PatientPage to hide UserButton if mockUser is invoked.
+                 */}
+            </BrowserRouter>
         )
     }
 

@@ -6,9 +6,12 @@ import Chat from '../components/Chat'
 
 const API_URL = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : (import.meta.env.VITE_API_URL || 'http://localhost:8000')
 
-function PatientPage() {
-    const { user, isLoaded } = useUser()
+function PatientPage({ mockUser }) {
+    const { user: clerkUser, isLoaded } = useUser()
     const { signOut } = useClerk()
+
+    // Use mockUser if provided, otherwise Clerk user
+    const user = mockUser || clerkUser
     const [appointments, setAppointments] = useState([])
     const [loading, setLoading] = useState(false)
     const [integrationStatus, setIntegrationStatus] = useState(null)
@@ -57,7 +60,7 @@ function PatientPage() {
     }
 
     // Loading
-    if (!isLoaded) {
+    if (!mockUser && !isLoaded) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
                 <div className="text-white text-xl">Loading...</div>
@@ -129,10 +132,24 @@ function PatientPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <LogoutButton onLogout={() => signOut()} />
-                            <div className="transform scale-125 origin-right">
-                                <UserButton afterSignOutUrl="/sign-in" />
-                            </div>
+                            {mockUser ? (
+                                <button
+                                    onClick={() => {
+                                        localStorage.removeItem('simplePatientAuth')
+                                        window.location.reload()
+                                    }}
+                                    className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-white rounded-lg transition-colors text-sm font-medium"
+                                >
+                                    Exit Demo
+                                </button>
+                            ) : (
+                                <>
+                                    <LogoutButton onLogout={() => signOut()} />
+                                    <div className="transform scale-125 origin-right">
+                                        <UserButton afterSignOutUrl="/sign-in" />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </header>

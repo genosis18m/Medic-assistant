@@ -101,6 +101,11 @@ async def lifespan(app: FastAPI):
                     specialization=Specialization.DERMATOLOGY
                 ),
                 Doctor(
+                    name="Test Doctor",
+                    email="doctor@clinic.com",
+                    specialization=Specialization.GENERAL
+                ),
+                Doctor(
                     name="Dr. James Brown",
                     email="james@clinic.com",
                     specialization=Specialization.NEUROLOGY
