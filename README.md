@@ -28,13 +28,15 @@ An AI-powered medical appointment booking and reporting system using **FastAPI**
 | Email | Password | Notes |
 |-------|----------|-------|
 | `doctor@clinic.com` | `password` | **Test Account** (Bypasses Clerk) |
-| `doctor12345@gmail.com` | (Clerk) | Dr. Sarah Johnson |
-| `adonimohit@gmail.com` | (Clerk) | Dr. Mohit Adoni |
+
+ ## Can link personal accoounts too for each doctor:
+| `doctor12345@gmail.com` |  | Dr. Sarah Johnson |
+| `adonimohit@gmail.com` | | Dr. Mohit Adoni |
 
 ### Patient Access
 | Email | Password | Notes |
 |-------|----------|-------|
-| `patient@clinic.com` | (None) | **Test Account** (Click "Use Test Patient Account") |
+| `patient@clinic.com` | `password` | **Test Account** (Click "Use Test Patient Account") |
 | Any Email | (Clerk) | Sign up required |
 
 > **Note**: For "Test Accounts", no sign-up is required. Just click the link/button on the login page.

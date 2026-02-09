@@ -63,6 +63,26 @@ const UnifiedLoginPage = () => {
         }
     };
 
+    // -- PATIENT TEST LOGIN STATE --
+    const [showPatientLogin, setShowPatientLogin] = useState(false);
+    const [patientName, setPatientName] = useState('');
+    const [patientPassword, setPatientPassword] = useState('');
+    const [patientError, setPatientError] = useState('');
+
+    const handlePatientLogin = (e) => {
+        e.preventDefault();
+        if (patientPassword === 'password') {
+            const patientData = {
+                email: 'patient@clinic.com',
+                name: patientName || 'Test Patient'
+            };
+            localStorage.setItem('simplePatientAuth', JSON.stringify(patientData));
+            window.location.href = '/patient';
+        } else {
+            setPatientError('Invalid password. Try: password');
+        }
+    };
+
     return (
         <div className="wrapper">
             <div className="card-switch">
@@ -153,6 +173,53 @@ const UnifiedLoginPage = () => {
                                     signUpUrl="/sign-up"
                                     forceRedirectUrl="/patient"
                                 />
+                            </div>
+
+                            {/* TEST PATIENT OVERLAY */}
+                            {showPatientLogin && (
+                                <div className="absolute inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center p-6 rounded-[20px]">
+                                    <h3 className="text-white text-xl font-bold mb-4">Patient Test Login</h3>
+                                    <form className="w-full flex flex-col gap-3" onSubmit={handlePatientLogin}>
+                                        <input
+                                            className="flip-card__input"
+                                            placeholder="Enter Your Name"
+                                            value={patientName}
+                                            onChange={e => setPatientName(e.target.value)}
+                                            required
+                                        />
+                                        <input
+                                            className="flip-card__input"
+                                            placeholder="Password (password)"
+                                            type="password"
+                                            value={patientPassword}
+                                            onChange={e => setPatientPassword(e.target.value)}
+                                            required
+                                        />
+                                        {patientError && <p className="text-red-400 text-xs text-center">{patientError}</p>}
+                                        <button className="flip-card__btn bg-teal-600 hover:bg-teal-500">Login</button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPatientLogin(false)}
+                                            className="text-slate-400 text-sm hover:text-white mt-2"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                            )}
+
+                            <div className="mt-4 flex flex-col items-center relative z-10">
+                                {!showPatientLogin && (
+                                    <>
+                                        <div className="text-slate-500 text-sm mb-2">- OR -</div>
+                                        <button
+                                            onClick={() => setShowPatientLogin(true)}
+                                            className="text-teal-400 hover:text-teal-300 text-sm font-medium underline decoration-teal-400/30 hover:decoration-teal-300"
+                                        >
+                                            Use Test Patient Account
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

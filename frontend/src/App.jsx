@@ -181,7 +181,7 @@ function App() {
         const mockUser = {
             id: 'test-patient-id',
             primaryEmailAddress: { emailAddress: simplePatientData.email },
-            fullName: 'Test Patient'
+            fullName: simplePatientData.name
         }
 
         return (
